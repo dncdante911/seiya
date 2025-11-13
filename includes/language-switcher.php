@@ -17,14 +17,16 @@ $current_url = $_SERVER['REQUEST_URI'];
 </div>
 
 <style>
+.navbar-lang {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+}
+
 .language-switcher {
     display: flex;
     gap: 0.5rem;
     align-items: center;
-    position: absolute;
-    top: 2rem;
-    right: 2rem;
-    z-index: 100;
 }
 
 .lang-btn {
@@ -64,9 +66,18 @@ $current_url = $_SERVER['REQUEST_URI'];
 }
 
 @media (max-width: 768px) {
+    .navbar-lang {
+        margin-left: 0;
+        width: 100%;
+        justify-content: center;
+        padding: 1rem 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
     .language-switcher {
-        top: 1rem;
-        right: 1rem;
+        margin-top: 0;
+        justify-content: center;
+        width: 100%;
     }
 
     .lang-btn {

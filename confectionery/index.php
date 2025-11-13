@@ -27,9 +27,6 @@ $featured_products = $stmt->fetchAll();
     <link rel="stylesheet" href="../assets/css/confectionery.css">
 </head>
 <body>
-    <!-- Переключатель языков -->
-    <?php include __DIR__ . '/../includes/language-switcher.php'; ?>
-
     <!-- Навигация -->
     <nav class="navbar">
         <div class="navbar-container">
@@ -45,6 +42,9 @@ $featured_products = $stmt->fetchAll();
                 <li><a href="constructor.php"><?= t('cake_constructor') ?></a></li>
                 <li><a href="chat.php"><?= t('chat_with_confectioner') ?></a></li>
                 <li><a href="../"><?= t('back_to_main') ?></a></li>
+                <li class="navbar-lang">
+                    <?php include __DIR__ . '/../includes/language-switcher.php'; ?>
+                </li>
             </ul>
         </div>
     </nav>

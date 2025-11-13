@@ -23,9 +23,6 @@ $portfolio = $stmt->fetchAll();
     <link rel="stylesheet" href="../assets/css/fireshow.css">
 </head>
 <body>
-    <!-- Переключатель языков -->
-    <?php include __DIR__ . '/../includes/language-switcher.php'; ?>
-
     <nav class="navbar">
         <div class="navbar-container">
             <a href="../" class="navbar-logo"><?= t('fireshow_logo') ?></a>
@@ -40,6 +37,9 @@ $portfolio = $stmt->fetchAll();
                 <li><a href="portfolio.php"><?= t('portfolio') ?></a></li>
                 <li><a href="order.php"><?= t('order_show') ?></a></li>
                 <li><a href="../"><?= t('back_to_main') ?></a></li>
+                <li class="navbar-lang">
+                    <?php include __DIR__ . '/../includes/language-switcher.php'; ?>
+                </li>
             </ul>
         </div>
     </nav>
@@ -115,7 +115,7 @@ $portfolio = $stmt->fetchAll();
     <?php endif; ?>
 
     <!-- Виджет новостей -->
-    <div class="container fireshow-section">
+    <div class="container">
         <?php
         $section = 'fireshow';
         $limit = 3;

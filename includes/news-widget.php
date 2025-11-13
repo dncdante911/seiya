@@ -79,8 +79,6 @@ if (empty($news_items)) {
 <style>
 .news-widget {
     padding: 3rem 0;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 20px;
     margin: 2rem 0;
 }
 
@@ -126,11 +124,13 @@ if (empty($news_items)) {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     cursor: pointer;
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .news-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
 }
 
 .news-card-image {
@@ -188,22 +188,7 @@ if (empty($news_items)) {
     font-size: 0.95rem;
 }
 
-/* Темная тема для фаершоу */
-.fireshow-section .news-card {
-    background: var(--dark-card, #2a2a3e);
-}
-
-.fireshow-section .news-card-title {
-    color: #ff4500;
-}
-
-.fireshow-section .news-card-excerpt {
-    color: #d0d0e0;
-}
-
-.fireshow-section .news-date {
-    color: #999;
-}
+/* Убраны стили темной темы для фаершоу - используются обычные белые карточки */
 
 @media (max-width: 768px) {
     .news-widget-grid {
