@@ -176,7 +176,7 @@ $messages = $stmt->fetchAll();
                 <div class="message-content">
                     ${imageHtml}
                     <div>${message}</div>
-                    <div class="message-time">${new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'})}</div>
+                    <div class="message-time">${new Date().toLocaleTimeString('uk-UA', {hour: '2-digit', minute: '2-digit'})}</div>
                 </div>
             `;
 

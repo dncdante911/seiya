@@ -169,7 +169,7 @@ $programs = $stmt->fetchAll();
             const numArtists = parseInt(document.getElementById('numArtists').value) || selectedProgram.min;
             const total = selectedProgram.price * numArtists;
 
-            document.getElementById('totalPrice').textContent = total.toLocaleString('ru-RU') + ' грн';
+            document.getElementById('totalPrice').textContent = total.toLocaleString('uk-UA') + ' грн';
         }
 
         async function submitFireshowOrder(e) {

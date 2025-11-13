@@ -236,7 +236,7 @@ foreach ($types as $type) {
                 }
             });
 
-            document.getElementById('total-price').textContent = total.toLocaleString('ru-RU') + ' грн';
+            document.getElementById('total-price').textContent = total.toLocaleString('uk-UA') + ' грн';
         }
 
         function openOrderModal() {

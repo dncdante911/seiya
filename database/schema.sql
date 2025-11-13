@@ -227,9 +227,9 @@ CREATE TABLE IF NOT EXISTS `settings` (
 
 -- Дефолтные настройки
 INSERT INTO `settings` (`key_name`, `value`, `description`) VALUES
-('site_name', 'Кондитерка & Фаершоу', 'Название сайта'),
-('site_phone', '+7 (XXX) XXX-XX-XX', 'Телефон для связи'),
-('site_email', 'info@example.com', 'Email для связи'),
+('site_name', 'Seiya - Кондитерська & Фаєршоу', 'Название сайта'),
+('site_phone', '+380 (XX) XXX-XX-XX', 'Телефон для связи'),
+('site_email', 'info@seiya.com.ua', 'Email для связи'),
 ('vk_link', '', 'Ссылка на VK'),
 ('instagram_link', '', 'Ссылка на Instagram'),
 ('telegram_link', '', 'Ссылка на Telegram'),
