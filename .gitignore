@@ -2,15 +2,21 @@
 
 # Конфигурация (содержит чувствительные данные)
 config/database.php
+.env
+.env.*
+!.env.example
 
 # Загруженные файлы
 uploads/
 uploads/*
 !uploads/.gitkeep
 
-# PHP
+# PHP и логи
 *.log
 *.cache
+logs/
+logs/*
+!logs/.gitkeep
 
 # IDE
 .idea/

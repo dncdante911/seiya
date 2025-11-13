@@ -5,11 +5,24 @@
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/functions.php';
+require_once __DIR__ . '/../config/security.php';
 
-// Разрешаем AJAX запросы
-header('Access-Control-Allow-Origin: *');
+// Безопасная настройка CORS - только для своего домена
+$allowed_origins = [
+    'http://localhost',
+    'http://127.0.0.1',
+    'https://seiya.com.ua',
+    'http://seiya.com.ua'
+];
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowed_origins)) {
+    header("Access-Control-Allow-Origin: $origin");
+}
+
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Credentials: true');
 
 $db = getDB();
 $action = $_GET['action'] ?? $_POST['action'] ?? '';

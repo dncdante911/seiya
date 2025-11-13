@@ -12,14 +12,22 @@
     # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 </IfModule>
 
-# Защита config файлов
-<FilesMatch "^(config|database)\.php$">
+# Защита config файлов и конфиденциальных данных
+<FilesMatch "^(config|database)\.php$|\.env$|\.env\..*$">
     Order Allow,Deny
     Deny from all
 </FilesMatch>
 
 # Защита от просмотра директорий
 Options -Indexes
+
+# Защита от выполнения PHP в папке загрузок
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI} ^/uploads/.*$
+    RewriteCond %{REQUEST_FILENAME} \.php$
+    RewriteRule .* - [F,L]
+</IfModule>
 
 # Кастомные страницы ошибок (создайте их при необходимости)
 # ErrorDocument 404 /404.html

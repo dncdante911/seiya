@@ -2,6 +2,10 @@
 session_start();
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/functions.php';
+require_once __DIR__ . '/../config/security.php';
+
+// Защита сессии
+secureSession();
 
 // Если уже авторизован, перенаправляем в админку
 if (isAdminLoggedIn()) {
@@ -13,31 +17,53 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
+    $csrf_token = $_POST['csrf_token'] ?? '';
 
-    if ($username && $password) {
-        try {
-            $db = getDB();
-            $stmt = $db->prepare("SELECT * FROM users WHERE username = ? AND role = 'admin'");
-            $stmt->execute([$username]);
-            $user = $stmt->fetch();
-
-            if ($user) {
-                if (password_verify($password, $user['password'])) {
-                    $_SESSION['admin_id'] = $user['id'];
-                    $_SESSION['admin_username'] = $user['username'];
-                    $_SESSION['admin_role'] = $user['role'];
-                    redirect('index.php');
-                } else {
-                    $error = 'Невірний пароль. <a href="create_admin.php" style="color: #fff; text-decoration: underline;">Створити нового адміна</a>';
-                }
-            } else {
-                $error = 'Користувача не знайдено. <a href="create_admin.php" style="color: #fff; text-decoration: underline;">Створити адміна</a>';
-            }
-        } catch (Exception $e) {
-            $error = 'Помилка підключення до БД: ' . $e->getMessage() . '<br><a href="create_admin.php" style="color: #fff; text-decoration: underline;">Перевірте налаштування</a>';
-        }
-    } else {
+    // Проверка CSRF токена
+    if (!verifyCSRFToken($csrf_token)) {
+        $error = 'Невірний CSRF токен';
+        logSecurityEvent('csrf_token_invalid', ['username' => $username]);
+    } elseif (!$username || !$password) {
         $error = 'Заповніть всі поля';
+    } else {
+        // Rate limiting по IP
+        $clientIP = getClientIP();
+        if (!checkRateLimit($clientIP, 5, 900)) {
+            $timeout = getRateLimitTimeout($clientIP);
+            $minutes = ceil($timeout / 60);
+            $error = "Забагато спроб входу. Спробуйте через $minutes хв.";
+            logSecurityEvent('rate_limit_exceeded', ['ip' => $clientIP, 'username' => $username]);
+        } else {
+            try {
+                $db = getDB();
+                $stmt = $db->prepare("SELECT * FROM users WHERE username = ? AND role = 'admin'");
+                $stmt->execute([$username]);
+                $user = $stmt->fetch();
+
+                if ($user) {
+                    if (password_verify($password, $user['password'])) {
+                        // Успешный вход - сбрасываем rate limit
+                        resetRateLimit($clientIP);
+
+                        $_SESSION['admin_id'] = $user['id'];
+                        $_SESSION['admin_username'] = $user['username'];
+                        $_SESSION['admin_role'] = $user['role'];
+
+                        logSecurityEvent('admin_login_success', ['username' => $username]);
+                        redirect('index.php');
+                    } else {
+                        $error = 'Невірний пароль';
+                        logSecurityEvent('admin_login_failed', ['username' => $username, 'reason' => 'wrong_password']);
+                    }
+                } else {
+                    $error = 'Користувача не знайдено. <a href="create_admin.php" style="color: #fff; text-decoration: underline;">Створити адміна</a>';
+                    logSecurityEvent('admin_login_failed', ['username' => $username, 'reason' => 'user_not_found']);
+                }
+            } catch (Exception $e) {
+                $error = 'Помилка підключення до БД: ' . $e->getMessage() . '<br><a href="create_admin.php" style="color: #fff; text-decoration: underline;">Перевірте налаштування</a>';
+                logSecurityEvent('admin_login_error', ['username' => $username, 'error' => $e->getMessage()]);
+            }
+        }
     }
 }
 ?>
@@ -81,6 +107,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
 
             <form method="POST">
+                <?= csrfField() ?>
+
                 <div class="form-group">
                     <label>Логин</label>
                     <input type="text" name="username" class="form-control" required autofocus>
@@ -95,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </form>
 
             <p style="text-align: center; margin-top: 2rem; color: #666;">
-                <small>Дефолтный логин: admin / Пароль: admin123</small>
+                <small><a href="create_admin.php" style="color: #667eea; text-decoration: none;">Створити адміністратора</a></small>
             </p>
         </div>
     </div>

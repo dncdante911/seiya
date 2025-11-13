@@ -1,0 +1,19 @@
+# Запрет выполнения PHP скриптов в uploads
+<FilesMatch "\.php$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Разрешаем только изображения и видео
+<FilesMatch "\.(jpg|jpeg|png|gif|webp|mp4|webm|ogg)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Запрещаем все остальное
+<FilesMatch "^.*$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+php_flag engine off
