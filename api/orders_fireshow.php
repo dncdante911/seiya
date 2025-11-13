@@ -6,6 +6,8 @@ header('Content-Type: application/json; charset=utf-8');
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/functions.php';
+require_once __DIR__ . '/../config/whmcs.php';
+require_once __DIR__ . '/../includes/whmcs_client.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     jsonResponse(['success' => false, 'error' => 'Метод не поддерживается'], 405);
@@ -71,7 +73,7 @@ try {
         $total_price = $program['price_per_artist'] * $num_artists;
     }
 
-    // Создаем заказ
+    // Создаем заказ в локальной БД
     $stmt = $db->prepare("
         INSERT INTO orders_fireshow
         (customer_name, customer_phone, customer_email, event_date, event_time,
@@ -95,11 +97,80 @@ try {
 
     $order_id = $db->lastInsertId();
 
-    jsonResponse([
+    // Если WHMCS включен - создаем заказ там
+    $paymentUrl = null;
+    if (isWHMCSConfigured()) {
+        try {
+            $whmcs = new WHMCSClient();
+
+            // Получаем название программы для описания
+            $program_name = '';
+            $duration = null;
+            if ($program_id && isset($program)) {
+                $program_name = $program['name'];
+                $duration = $program['duration'];
+            }
+
+            $whmcsResult = $whmcs->createFireshowOrder([
+                'customer_name' => $customer_name,
+                'customer_email' => $customer_email ?: $customer_name . '@example.com',
+                'customer_phone' => $customer_phone,
+                'program_name' => $program_name,
+                'event_date' => $event_date,
+                'event_time' => $event_time,
+                'venue' => $event_location,
+                'artists_count' => $num_artists,
+                'duration' => $duration,
+                'special_requirements' => $comment,
+                'total_price' => $total_price,
+            ]);
+
+            if ($whmcsResult['success']) {
+                // Обновляем заказ с данными WHMCS
+                $stmt = $db->prepare("
+                    UPDATE orders_fireshow
+                    SET whmcs_client_id = ?,
+                        whmcs_order_id = ?,
+                        whmcs_invoice_id = ?
+                    WHERE id = ?
+                ");
+                $stmt->execute([
+                    $whmcsResult['clientid'],
+                    $whmcsResult['orderid'],
+                    $whmcsResult['invoiceid'],
+                    $order_id
+                ]);
+
+                // Получаем URL для оплаты
+                $paymentUrl = $whmcs->getInvoicePaymentUrl($whmcsResult['invoiceid']);
+
+                logWHMCS('Замовлення фаершоу створено успішно', [
+                    'order_id' => $order_id,
+                    'whmcs_order_id' => $whmcsResult['orderid'],
+                    'invoice_id' => $whmcsResult['invoiceid']
+                ]);
+            }
+        } catch (Exception $e) {
+            // Логируем ошибку, но заказ уже создан в локальной БД
+            logWHMCS('Помилка створення замовлення фаершоу в WHMCS', [
+                'order_id' => $order_id,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    $response = [
         'success' => true,
         'order_id' => $order_id,
         'message' => 'Заказ успешно оформлен'
-    ]);
+    ];
+
+    if ($paymentUrl) {
+        $response['payment_url'] = $paymentUrl;
+        $response['message'] = 'Заказ успешно оформлен. Перейдите к оплате.';
+    }
+
+    jsonResponse($response);
 
 } catch (Exception $e) {
     jsonResponse(['success' => false, 'error' => 'Ошибка сервера: ' . $e->getMessage()], 500);

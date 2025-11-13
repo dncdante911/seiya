@@ -650,6 +650,11 @@ textarea.form-control {
 @media (max-width: 767px) {
     .landing-header h1 {
         font-size: 2rem;
+        padding: 0 1rem;
+    }
+
+    .landing-header p {
+        padding: 0 1rem;
     }
 
     .section-content h2 {
@@ -671,6 +676,45 @@ textarea.form-control {
 
     .section-title {
         font-size: 2rem;
+    }
+
+    /* Language switcher mobile optimization */
+    .language-switcher {
+        top: 10px !important;
+        right: 10px !important;
+        gap: 0.3rem;
+    }
+
+    .lang-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Sections stacking */
+    .sections-wrapper {
+        flex-direction: column;
+    }
+
+    .section-half {
+        min-height: 50vh;
+        width: 100%;
+    }
+
+    /* Better touch targets */
+    .section-button {
+        min-height: 44px;
+        padding: 1rem 2rem;
+    }
+
+    /* Decorative elements on mobile */
+    .decorative-element {
+        opacity: 0.1 !important;
+        font-size: 2rem !important;
     }
 }
 
