@@ -41,70 +41,15 @@ body {
 }
 
 /* ============================================
-   ГЛАВНАЯ СТРАНИЦА - ТЕМНЫЙ ДИЗАЙН С BLUR
+   ГЛАВНАЯ СТРАНИЦА - СТИЛЬ ИНЬ-ЯНЬ
    ============================================ */
 .landing-page {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    background: #1a1a2e;
     position: relative;
     overflow: hidden;
-}
-
-/* Анимированный фоновый паттерн */
-.landing-page::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background:
-        radial-gradient(circle at 20% 50%, rgba(255, 107, 157, 0.15) 0%, transparent 40%),
-        radial-gradient(circle at 80% 80%, rgba(255, 69, 0, 0.15) 0%, transparent 40%),
-        radial-gradient(circle at 50% 20%, rgba(102, 126, 234, 0.1) 0%, transparent 50%);
-    animation: backgroundMove 20s ease-in-out infinite;
-}
-
-@keyframes backgroundMove {
-    0%, 100% {
-        transform: translate(0, 0) rotate(0deg);
-        opacity: 0.5;
-    }
-    50% {
-        transform: translate(-5%, -5%) rotate(5deg);
-        opacity: 0.8;
-    }
-}
-
-/* Дополнительный слой с анимированными частицами */
-.landing-page::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image:
-        radial-gradient(2px 2px at 20% 30%, white, transparent),
-        radial-gradient(2px 2px at 60% 70%, white, transparent),
-        radial-gradient(1px 1px at 50% 50%, white, transparent),
-        radial-gradient(1px 1px at 80% 10%, white, transparent),
-        radial-gradient(2px 2px at 90% 60%, white, transparent);
-    background-size: 200% 200%;
-    animation: stars 60s linear infinite;
-    opacity: 0.3;
-}
-
-@keyframes stars {
-    from { background-position: 0 0; }
-    to { background-position: -100% -100%; }
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.6; }
 }
 
 .landing-header {
@@ -114,24 +59,25 @@ body {
     position: relative;
     z-index: 10;
     animation: fadeInDown 1s ease;
+    background: linear-gradient(180deg, rgba(26, 26, 46, 0.95) 0%, transparent 100%);
 }
 
 .landing-header h1 {
     font-size: 2.5rem;
     margin-bottom: 0.5rem;
     font-weight: 700;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 255, 255, 0.3);
     letter-spacing: 1px;
 }
 
 .landing-header p {
     font-size: 1.1rem;
     opacity: 0.95;
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 /* ============================================
-   СЕКЦИИ - РАЗДЕЛЕННЫЕ ПОЛОВИНЫ
+   СЕКЦИИ - СТИЛЬ ИНЬ-ЯНЬ С ВОГНУТЫМИ ФОРМАМИ
    ============================================ */
 .sections-wrapper {
     flex: 1;
@@ -148,8 +94,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: visible;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     text-decoration: none;
 }
 
@@ -160,29 +106,63 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    transition: all 0.5s ease;
+    transition: all 0.6s ease;
     z-index: 1;
 }
 
-.section-half:hover {
-    flex: 1.2;
+/* Анимации зірок та вогню */
+@keyframes sparkle {
+    0%, 100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.5);
+    }
 }
 
-.section-half:hover::before {
-    backdrop-filter: brightness(1.1);
+@keyframes flicker {
+    0%, 100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    25% {
+        opacity: 0.8;
+        transform: translateY(-5px) scale(1.05);
+    }
+    50% {
+        opacity: 0.9;
+        transform: translateY(-3px) scale(0.98);
+    }
+    75% {
+        opacity: 0.85;
+        transform: translateY(-7px) scale(1.02);
+    }
 }
 
-/* Кондитерка - прозрачная с blur и фоновым изображением */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+/* ============================================
+   КОНДИТЕРКА - ИНЬ (СВЕТЛАЯ ЧАСТЬ)
+   ============================================ */
 .confectionery-section {
-    /* Фоновое изображение - ЗАМЕНИТЕ НА СВОЕ! */
     background-image: url('../images/backgrounds/confectionery-bg.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     position: relative;
+
+    /* Вогнутая форма вниз (как символ Инь) */
+    clip-path: ellipse(100% 55% at 50% 45%);
+    border-bottom-left-radius: 50% 20%;
+    border-bottom-right-radius: 50% 20%;
 }
 
-/* Прозрачный слой с blur поверх изображения */
+/* Светлый оверлей с легким затемнением */
 .confectionery-section::before {
     content: '';
     position: absolute;
@@ -191,34 +171,62 @@ body {
     right: 0;
     bottom: 0;
     background: linear-gradient(
-        135deg,
-        rgba(255, 107, 157, 0.75) 0%,
-        rgba(255, 140, 66, 0.65) 100%
+        180deg,
+        rgba(255, 245, 250, 0.4) 0%,
+        rgba(255, 220, 230, 0.5) 50%,
+        rgba(255, 200, 220, 0.6) 100%
     );
-    backdrop-filter: blur(8px) saturate(1.2);
-    -webkit-backdrop-filter: blur(8px) saturate(1.2);
-    opacity: 0.85;
+    backdrop-filter: blur(3px) brightness(1.1);
+    -webkit-backdrop-filter: blur(3px) brightness(1.1);
     z-index: 1;
-    transition: all 0.5s ease;
+    transition: all 0.6s ease;
 }
 
 .confectionery-section:hover::before {
-    opacity: 0.7;
-    backdrop-filter: blur(5px) saturate(1.4);
-    -webkit-backdrop-filter: blur(5px) saturate(1.4);
+    backdrop-filter: blur(2px) brightness(1.15);
+    -webkit-backdrop-filter: blur(2px) brightness(1.15);
+    background: linear-gradient(
+        180deg,
+        rgba(255, 245, 250, 0.3) 0%,
+        rgba(255, 220, 230, 0.4) 50%,
+        rgba(255, 200, 220, 0.5) 100%
+    );
 }
 
-/* Фаершоу - прозрачная с blur и фоновым изображением */
+/* Искрящиеся звездочки для кондитерки */
+.confectionery-section::after {
+    content: '✨ ⭐ 💫 ✨ ⭐';
+    position: absolute;
+    top: 20%;
+    left: 0;
+    right: 0;
+    font-size: 2rem;
+    text-align: center;
+    letter-spacing: 3rem;
+    opacity: 0.4;
+    z-index: 1;
+    animation: sparkle 3s ease-in-out infinite;
+    pointer-events: none;
+}
+
+/* ============================================
+   ФАЕРШОУ - ЯНЬ (ТЕМНАЯ ЧАСТЬ)
+   ============================================ */
 .fireshow-section {
-    /* Фоновое изображение - ЗАМЕНИТЕ НА СВОЕ! */
     background-image: url('../images/backgrounds/fireshow-bg.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     position: relative;
+
+    /* Вогнутая форма вверх (как символ Янь) */
+    clip-path: ellipse(100% 55% at 50% 55%);
+    border-top-left-radius: 50% 20%;
+    border-top-right-radius: 50% 20%;
+    margin-top: -5vh;
 }
 
-/* Прозрачный слой с blur поверх изображения */
+/* Темный оверлей с огненными оттенками */
 .fireshow-section::before {
     content: '';
     position: absolute;
@@ -227,36 +235,56 @@ body {
     right: 0;
     bottom: 0;
     background: linear-gradient(
-        135deg,
-        rgba(255, 69, 0, 0.75) 0%,
-        rgba(255, 99, 71, 0.65) 100%
+        180deg,
+        rgba(20, 10, 5, 0.7) 0%,
+        rgba(40, 20, 10, 0.75) 50%,
+        rgba(60, 30, 15, 0.8) 100%
     );
-    backdrop-filter: blur(8px) saturate(1.2);
-    -webkit-backdrop-filter: blur(8px) saturate(1.2);
-    opacity: 0.85;
+    backdrop-filter: blur(3px) saturate(1.3);
+    -webkit-backdrop-filter: blur(3px) saturate(1.3);
     z-index: 1;
-    transition: all 0.5s ease;
+    transition: all 0.6s ease;
 }
 
 .fireshow-section:hover::before {
-    opacity: 0.7;
-    backdrop-filter: blur(5px) saturate(1.4);
-    -webkit-backdrop-filter: blur(5px) saturate(1.4);
+    backdrop-filter: blur(2px) saturate(1.5);
+    -webkit-backdrop-filter: blur(2px) saturate(1.5);
+    background: linear-gradient(
+        180deg,
+        rgba(20, 10, 5, 0.6) 0%,
+        rgba(40, 20, 10, 0.65) 50%,
+        rgba(60, 30, 15, 0.7) 100%
+    );
+}
+
+/* Мерцающие огненные эмодзи */
+.fireshow-section::after {
+    content: '🔥 ✨ 🔥 ✨ 🔥';
+    position: absolute;
+    bottom: 20%;
+    left: 0;
+    right: 0;
+    font-size: 2.5rem;
+    text-align: center;
+    letter-spacing: 3rem;
+    opacity: 0.6;
+    z-index: 1;
+    animation: flicker 2s ease-in-out infinite;
+    pointer-events: none;
 }
 
 .section-content {
     position: relative;
     z-index: 2;
     text-align: center;
-    color: white;
     padding: 3rem;
     max-width: 600px;
     transform: scale(1);
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .section-half:hover .section-content {
-    transform: scale(1.05);
+    transform: scale(1.08);
 }
 
 .section-icon {
@@ -264,84 +292,116 @@ body {
     margin-bottom: 1.5rem;
     display: inline-block;
     animation: float 3s ease-in-out infinite;
-    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
-    transition: transform 0.3s ease;
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
+    transition: transform 0.4s ease;
 }
 
 .section-half:hover .section-icon {
     animation: float 1.5s ease-in-out infinite;
+    transform: scale(1.2) rotate(10deg);
 }
 
-.section-content h2 {
+/* Стилі для СВЕТЛОЙ секції (Кондитерка - Инь) */
+.confectionery-section .section-content {
+    color: #2c3e50;
+}
+
+.confectionery-section .section-icon {
+    filter: drop-shadow(0 5px 15px rgba(255, 107, 157, 0.6));
+}
+
+.confectionery-section .section-content h2 {
     font-size: 3rem;
     margin-bottom: 1rem;
     font-weight: 700;
-    text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 255, 255, 0.3);
+    color: #ff6b9d;
+    text-shadow:
+        2px 2px 4px rgba(255, 255, 255, 0.8),
+        0 0 30px rgba(255, 107, 157, 0.4),
+        0 0 50px rgba(255, 140, 66, 0.3);
     letter-spacing: 2px;
-    color: #ffffff;
 }
 
-.section-content p {
+.confectionery-section .section-content p {
     font-size: 1.3rem;
     margin-bottom: 2rem;
     line-height: 1.6;
-    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 255, 255, 0.2);
+    color: #555;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* Стилі для ТЕМНОЙ секції (Фаершоу - Янь) */
+.fireshow-section .section-content {
+    color: #ffffff;
+}
+
+.fireshow-section .section-icon {
+    filter: drop-shadow(0 5px 20px rgba(255, 69, 0, 0.8));
+}
+
+.fireshow-section .section-content h2 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    color: #ff4500;
+    text-shadow:
+        2px 2px 8px rgba(0, 0, 0, 0.8),
+        0 0 30px rgba(255, 69, 0, 0.6),
+        0 0 50px rgba(255, 140, 0, 0.4);
+    letter-spacing: 2px;
+}
+
+.fireshow-section .section-content p {
+    font-size: 1.3rem;
+    margin-bottom: 2rem;
+    line-height: 1.6;
     color: rgba(255, 255, 255, 0.95);
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8), 0 0 15px rgba(255, 69, 0, 0.3);
 }
 
 .section-button {
     display: inline-block;
     padding: 1.2rem 3rem;
-    background: white;
     border-radius: 50px;
     font-size: 1.2rem;
     font-weight: 600;
     text-decoration: none;
-    transition: all 0.3s ease;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transition: all 0.4s ease;
     position: relative;
     overflow: hidden;
-}
-
-.confectionery-section .section-button {
-    color: #ff6b9d;
-}
-
-.fireshow-section .section-button {
-    color: #ff4500;
-}
-
-.section-button::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
-    transform: translate(-50%, -50%);
-    transition: width 0.6s, height 0.6s;
-}
-
-.section-button:hover::before {
-    width: 300px;
-    height: 300px;
-}
-
-.section-button:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    border: 3px solid transparent;
 }
 
 .section-button span {
     position: relative;
     z-index: 1;
+}
+
+/* Кнопка для светлой секції (Кондитерка) */
+.confectionery-section .section-button {
+    background: linear-gradient(135deg, #ff6b9d 0%, #ff8c42 100%);
+    color: white;
+    box-shadow: 0 8px 25px rgba(255, 107, 157, 0.4);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.confectionery-section .section-button:hover {
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(255, 107, 157, 0.6);
+    background: linear-gradient(135deg, #ff8c42 0%, #ff6b9d 100%);
+}
+
+/* Кнопка для темной секції (Фаершоу) */
+.fireshow-section .section-button {
+    background: linear-gradient(135deg, #ff4500 0%, #ff6347 100%);
+    color: white;
+    box-shadow: 0 8px 25px rgba(255, 69, 0, 0.5), 0 0 30px rgba(255, 99, 71, 0.3);
+    border-color: rgba(255, 140, 0, 0.6);
+}
+
+.fireshow-section .section-button:hover {
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(255, 69, 0, 0.8), 0 0 50px rgba(255, 140, 0, 0.5);
+    background: linear-gradient(135deg, #ff6347 0%, #ff4500 100%);
 }
 
 /* ============================================
@@ -809,6 +869,67 @@ textarea.form-control {
     .decorative-element {
         opacity: 0.1 !important;
         font-size: 2rem !important;
+    }
+
+    /* ============================================
+       ИНЬ-ЯНЬ МОБИЛЬНАЯ АДАПТАЦИЯ
+       ============================================ */
+
+    /* Упрощаем вогнутые формы на мобильных - убираем clip-path */
+    .confectionery-section {
+        clip-path: none;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        border-radius: 0 0 30px 30px;
+    }
+
+    .fireshow-section {
+        clip-path: none;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        border-radius: 30px 30px 0 0;
+        margin-top: 0;
+    }
+
+    /* Уменьшаем размер и пространство для emoji на мобильных */
+    .confectionery-section::after {
+        font-size: 1.5rem;
+        letter-spacing: 1.5rem;
+        top: 10%;
+    }
+
+    .fireshow-section::after {
+        font-size: 1.8rem;
+        letter-spacing: 1.5rem;
+        bottom: 10%;
+    }
+
+    /* Убираем hover эффекты на мобильных */
+    .section-half:hover .section-content {
+        transform: none;
+    }
+
+    .section-half:hover .section-icon {
+        animation: float 3s ease-in-out infinite;
+        transform: none;
+    }
+
+    /* Упрощаем content padding */
+    .section-content {
+        padding: 2rem 1.5rem;
+    }
+
+    /* Адаптация заголовков для Инь-Янь */
+    .confectionery-section .section-content h2,
+    .fireshow-section .section-content h2 {
+        font-size: 2.2rem;
+        letter-spacing: 1px;
+    }
+
+    .confectionery-section .section-content p,
+    .fireshow-section .section-content p {
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
     }
 }
 

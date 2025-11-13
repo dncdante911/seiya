@@ -1,22 +1,100 @@
-/* Стили для раздела фаершоу - УЛУЧШЕННАЯ ВЕРСИЯ */
+/* Стили для раздела фаершоу - ТЕМНАЯ ВЕРСИЯ С АНИМАЦИЯМИ */
 
 :root {
     --fire-primary: #ff4500;
     --fire-secondary: #ff6347;
     --fire-orange: #ff8c00;
     --fire-yellow: #ffa500;
+    --dark-bg: #0a0a0f;
+    --dark-card: #1a1a2e;
+    --dark-lighter: #252538;
+}
+
+/* ============================================
+   ОБЩИЙ ТЕМНЫЙ СТИЛЬ ДЛЯ ФАЕРШОУ
+   ============================================ */
+body {
+    background: var(--dark-bg);
+    color: #e0e0e0;
+}
+
+/* Темный контейнер */
+.container {
+    position: relative;
+}
+
+/* ============================================
+   ЗВЕЗДНОЕ НЕБО НА ФОНЕ
+   ============================================ */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+        radial-gradient(2px 2px at 20% 30%, white, transparent),
+        radial-gradient(2px 2px at 60% 70%, white, transparent),
+        radial-gradient(1px 1px at 50% 50%, white, transparent),
+        radial-gradient(1px 1px at 80% 10%, white, transparent),
+        radial-gradient(2px 2px at 90% 60%, white, transparent),
+        radial-gradient(1px 1px at 33% 80%, white, transparent),
+        radial-gradient(2px 2px at 70% 20%, white, transparent);
+    background-size: 200% 200%;
+    background-position: 0 0, 40px 60px, 130px 270px, 70px 100px, 150px 50px, 90px 180px, 200px 130px;
+    animation: twinkleStars 5s ease-in-out infinite;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes twinkleStars {
+    0%, 100% {
+        opacity: 0.2;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.4;
+        transform: scale(1.05);
+    }
+}
+
+/* Движущиеся звезды */
+.shooting-star {
+    position: fixed;
+    width: 2px;
+    height: 2px;
+    background: white;
+    box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    animation: shootingStar 3s linear infinite;
+    z-index: 0;
+    pointer-events: none;
+}
+
+@keyframes shootingStar {
+    0% {
+        transform: translateX(0) translateY(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(-300px) translateY(300px);
+        opacity: 0;
+    }
 }
 
 /* ============================================
    БАННЕР С ОГНЕННЫМИ ЭФФЕКТАМИ
    ============================================ */
 .fireshow-banner {
-    background: linear-gradient(135deg, 
-        rgba(255, 69, 0, 0.85) 0%, 
-        rgba(255, 99, 71, 0.85) 50%, 
-        rgba(255, 140, 0, 0.85) 100%);
+    background: linear-gradient(135deg,
+        rgba(10, 10, 15, 0.95) 0%,
+        rgba(26, 10, 5, 0.95) 50%,
+        rgba(40, 20, 10, 0.95) 100%);
     position: relative;
     overflow: hidden;
+    border-bottom: 3px solid var(--fire-primary);
 }
 
 .fireshow-banner::before {
@@ -26,9 +104,9 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: 
-        radial-gradient(circle at 30% 20%, rgba(255, 165, 0, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 70% 80%, rgba(255, 69, 0, 0.3) 0%, transparent 50%);
+    background:
+        radial-gradient(circle at 30% 20%, rgba(255, 69, 0, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 70% 80%, rgba(255, 140, 0, 0.2) 0%, transparent 50%);
     animation: fireGlow 8s ease-in-out infinite;
 }
 
@@ -43,14 +121,16 @@
     }
 }
 
+/* Огненные эмодзи в баннере */
 .fireshow-banner::after {
-    content: '🔥✨💫';
+    content: '🔥✨💫🔥✨';
     position: absolute;
-    font-size: 8rem;
-    opacity: 0.1;
+    font-size: 6rem;
+    opacity: 0.15;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    letter-spacing: 2rem;
     animation: flameRotate 20s linear infinite;
     pointer-events: none;
 }
@@ -61,15 +141,30 @@
     to { transform: translate(-50%, -50%) rotate(360deg) scale(1); }
 }
 
+.hero-content h1 {
+    color: white;
+    text-shadow:
+        2px 2px 8px rgba(0, 0, 0, 0.8),
+        0 0 30px rgba(255, 69, 0, 0.6),
+        0 0 50px rgba(255, 140, 0, 0.4);
+}
+
+.hero-content p {
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
+}
+
 /* ============================================
    CTA СЕКЦИЯ ФАЕРШОУ
    ============================================ */
 .fireshow-cta {
-    background: linear-gradient(135deg, 
-        rgba(255, 69, 0, 0.9) 0%, 
-        rgba(255, 99, 71, 0.9) 50%, 
-        rgba(255, 140, 0, 0.9) 100%);
+    background: linear-gradient(135deg,
+        rgba(10, 10, 15, 0.95) 0%,
+        rgba(26, 10, 5, 0.95) 50%,
+        rgba(40, 20, 10, 0.95) 100%);
     position: relative;
+    border-top: 3px solid var(--fire-primary);
+    border-bottom: 3px solid var(--fire-primary);
 }
 
 .fireshow-cta::before {
@@ -79,7 +174,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.2) 0%, transparent 70%);
+    background: radial-gradient(circle at 50% 50%, rgba(255, 69, 0, 0.2) 0%, transparent 70%);
     animation: firePulse 3s ease-in-out infinite;
 }
 
@@ -94,25 +189,62 @@
     }
 }
 
+.fireshow-cta h2 {
+    color: white;
+    text-shadow:
+        2px 2px 8px rgba(0, 0, 0, 0.8),
+        0 0 30px rgba(255, 69, 0, 0.6);
+}
+
+.fireshow-cta p {
+    color: rgba(255, 255, 255, 0.9);
+}
+
 /* ============================================
-   ПОРТФОЛИО
+   ЗАГОЛОВКИ СЕКЦИЙ
+   ============================================ */
+.section-title {
+    color: white;
+    text-shadow:
+        2px 2px 8px rgba(0, 0, 0, 0.8),
+        0 0 20px rgba(255, 69, 0, 0.5);
+    position: relative;
+}
+
+.section-title::after {
+    background: linear-gradient(90deg,
+        transparent 0%,
+        var(--fire-primary) 20%,
+        var(--fire-orange) 50%,
+        var(--fire-primary) 80%,
+        transparent 100%);
+}
+
+/* ============================================
+   ПОРТФОЛИО - ТЕМНАЯ ВЕРСИЯ
    ============================================ */
 .portfolio-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 2rem;
     margin-bottom: 2rem;
+    position: relative;
+    z-index: 1;
 }
 
 .portfolio-card {
-    background: white;
+    background: var(--dark-card);
     border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.5),
+        0 0 20px rgba(255, 69, 0, 0.1);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
+    border: 1px solid rgba(255, 69, 0, 0.2);
 }
 
+/* Огненная рамка при наведении */
 .portfolio-card::before {
     content: '';
     position: absolute;
@@ -120,19 +252,54 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(255, 69, 0, 0.2), transparent);
+    background: linear-gradient(135deg,
+        rgba(255, 69, 0, 0.3) 0%,
+        rgba(255, 140, 0, 0.2) 50%,
+        rgba(255, 69, 0, 0.3) 100%);
     opacity: 0;
     transition: opacity 0.3s ease;
     z-index: 1;
     pointer-events: none;
 }
 
+/* Языки пламени в углах */
+.portfolio-card::after {
+    content: '🔥';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 2rem;
+    opacity: 0;
+    transition: all 0.3s ease;
+    animation: flameFlicker 2s ease-in-out infinite;
+    z-index: 2;
+    pointer-events: none;
+}
+
+@keyframes flameFlicker {
+    0%, 100% {
+        transform: scale(1) rotate(-5deg);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.1) rotate(5deg);
+        opacity: 1;
+    }
+}
+
 .portfolio-card:hover {
     transform: translateY(-10px) scale(1.02);
-    box-shadow: 0 20px 40px rgba(255, 69, 0, 0.3);
+    box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.7),
+        0 0 40px rgba(255, 69, 0, 0.4);
+    border-color: var(--fire-primary);
 }
 
 .portfolio-card:hover::before {
+    opacity: 1;
+}
+
+.portfolio-card:hover::after {
     opacity: 1;
 }
 
@@ -152,6 +319,7 @@
     padding: 1.5rem;
     position: relative;
     z-index: 2;
+    background: var(--dark-card);
 }
 
 .portfolio-info h3 {
@@ -159,10 +327,11 @@
     margin-bottom: 0.5rem;
     color: var(--fire-primary);
     font-weight: 700;
+    text-shadow: 0 0 10px rgba(255, 69, 0, 0.3);
 }
 
 .portfolio-date {
-    color: #666;
+    color: #999;
     font-size: 0.9rem;
     display: flex;
     align-items: center;
@@ -170,40 +339,60 @@
 }
 
 /* ============================================
-   ПРОГРАММЫ
+   ПРОГРАММЫ - ТЕМНАЯ ВЕРСИЯ
    ============================================ */
 .programs-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 2rem;
     margin-bottom: 2rem;
+    position: relative;
+    z-index: 1;
 }
 
 .program-card {
-    background: white;
+    background: var(--dark-card);
     border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.5),
+        0 0 20px rgba(255, 69, 0, 0.1);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
+    border: 1px solid rgba(255, 69, 0, 0.2);
 }
 
+/* Множественные языки пламени */
 .program-card::after {
-    content: '';
+    content: '🔥';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(255, 69, 0, 0.1), transparent);
+    bottom: 10px;
+    left: 10px;
+    font-size: 1.5rem;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: all 0.3s ease;
+    animation: smallFlame 1.5s ease-in-out infinite;
+    z-index: 2;
     pointer-events: none;
+}
+
+@keyframes smallFlame {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+        opacity: 0.7;
+    }
+    50% {
+        transform: translateY(-3px) scale(1.05);
+        opacity: 1;
+    }
 }
 
 .program-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(255, 69, 0, 0.3);
+    box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.7),
+        0 0 40px rgba(255, 69, 0, 0.4);
+    border-color: var(--fire-primary);
 }
 
 .program-card:hover::after {
@@ -226,9 +415,9 @@
     align-items: center;
     justify-content: center;
     font-size: 5rem;
-    background: linear-gradient(135deg, 
-        rgba(255, 69, 0, 0.1) 0%, 
-        rgba(255, 140, 0, 0.1) 100%);
+    background: linear-gradient(135deg,
+        rgba(255, 69, 0, 0.2) 0%,
+        rgba(255, 140, 0, 0.2) 100%);
     animation: fireGradient 3s ease-in-out infinite;
 }
 
@@ -243,13 +432,19 @@
 
 .program-info {
     padding: 1.5rem;
+    background: var(--dark-card);
 }
 
 .program-info h3 {
     font-size: 1.3rem;
     margin-bottom: 0.5rem;
-    color: var(--dark-color);
+    color: white;
     font-weight: 700;
+    text-shadow: 0 0 10px rgba(255, 69, 0, 0.3);
+}
+
+.program-info p {
+    color: #ccc;
 }
 
 .program-meta {
@@ -260,8 +455,8 @@
 }
 
 .program-meta span {
-    background: linear-gradient(135deg, 
-        var(--fire-primary), 
+    background: linear-gradient(135deg,
+        var(--fire-primary),
         var(--fire-secondary));
     color: white;
     padding: 0.3rem 0.8rem;
@@ -271,6 +466,7 @@
     display: flex;
     align-items: center;
     gap: 0.3rem;
+    box-shadow: 0 2px 8px rgba(255, 69, 0, 0.3);
 }
 
 .program-footer {
@@ -285,6 +481,7 @@
     font-weight: 700;
     color: var(--fire-primary);
     transition: transform 0.3s ease;
+    text-shadow: 0 0 15px rgba(255, 69, 0, 0.4);
 }
 
 .program-card:hover .program-price {
@@ -294,35 +491,41 @@
 
 @keyframes flamePulse {
     0%, 100% {
-        text-shadow: 0 0 5px rgba(255, 69, 0, 0.5);
+        text-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
     }
     50% {
-        text-shadow: 0 0 20px rgba(255, 69, 0, 0.8);
+        text-shadow: 0 0 25px rgba(255, 69, 0, 0.9);
     }
 }
 
 /* ============================================
-   ФОРМА ЗАКАЗА
+   ФОРМА ЗАКАЗА - ТЕМНАЯ ВЕРСИЯ
    ============================================ */
 .order-form-container {
     max-width: 800px;
     margin: 0 auto;
-    background: white;
+    background: var(--dark-card);
     border-radius: 20px;
     padding: 2rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.5),
+        0 0 30px rgba(255, 69, 0, 0.1);
+    border: 1px solid rgba(255, 69, 0, 0.2);
+    position: relative;
+    z-index: 1;
 }
 
 .order-form-container h2 {
     margin-bottom: 1.5rem;
-    color: var(--dark-color);
+    color: white;
     text-align: center;
+    text-shadow: 0 0 20px rgba(255, 69, 0, 0.5);
 }
 
 .form-section {
     margin-bottom: 2rem;
     padding-bottom: 2rem;
-    border-bottom: 2px solid #f0f0f0;
+    border-bottom: 2px solid var(--dark-lighter);
     animation: slideInUp 0.6s ease;
 }
 
@@ -337,6 +540,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    text-shadow: 0 0 15px rgba(255, 69, 0, 0.3);
 }
 
 .program-selector {
@@ -346,37 +550,37 @@
 }
 
 .program-option {
-    border: 3px solid #e0e0e0;
+    border: 3px solid var(--dark-lighter);
     border-radius: 15px;
     padding: 1rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    background: white;
+    background: var(--dark-lighter);
 }
 
 .program-option:hover {
     border-color: var(--fire-primary);
     transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(255, 69, 0, 0.2);
+    box-shadow: 0 8px 20px rgba(255, 69, 0, 0.3);
 }
 
 .program-option.selected {
     border-color: var(--fire-primary);
-    background: linear-gradient(135deg, 
-        rgba(255, 69, 0, 0.1), 
-        rgba(255, 140, 0, 0.1));
-    box-shadow: 0 0 0 2px white, 0 0 0 5px var(--fire-primary);
+    background: linear-gradient(135deg,
+        rgba(255, 69, 0, 0.2),
+        rgba(255, 140, 0, 0.2));
+    box-shadow: 0 0 0 2px var(--dark-card), 0 0 0 5px var(--fire-primary);
 }
 
 .program-option h4 {
     margin-bottom: 0.5rem;
-    color: var(--dark-color);
+    color: white;
     font-weight: 700;
 }
 
 .program-option p {
     font-size: 0.9rem;
-    color: #666;
+    color: #ccc;
     margin-bottom: 0.5rem;
 }
 
@@ -385,36 +589,125 @@
     font-weight: 600;
 }
 
-/* ============================================
-   ЭФФЕКТЫ ДЛЯ КАРТОЧЕК
-   ============================================ */
-.portfolio-card:hover,
-.program-card:hover {
-    animation: fireShine 0.6s ease;
+/* Темные инпуты */
+.form-control {
+    background: var(--dark-lighter);
+    border: 2px solid rgba(255, 69, 0, 0.3);
+    color: white;
 }
 
-@keyframes fireShine {
-    0% {
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
-    50% {
-        box-shadow: 0 20px 40px rgba(255, 69, 0, 0.4);
-    }
-    100% {
-        box-shadow: 0 20px 40px rgba(255, 69, 0, 0.3);
-    }
+.form-control:focus {
+    background: var(--dark-card);
+    border-color: var(--fire-primary);
+    box-shadow: 0 0 15px rgba(255, 69, 0, 0.3);
+}
+
+.form-control::placeholder {
+    color: #777;
+}
+
+/* ============================================
+   FEATURE CARDS - ТЕМНАЯ ВЕРСИЯ
+   ============================================ */
+.feature-card {
+    background: var(--dark-card);
+    border: 1px solid rgba(255, 69, 0, 0.2);
+    box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.5),
+        0 0 15px rgba(255, 69, 0, 0.1);
+    position: relative;
+}
+
+.feature-card::before {
+    content: '✨';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.5rem;
+    opacity: 0.3;
+    animation: twinkle 2s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.2; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.2); }
+}
+
+.feature-card:hover {
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.7),
+        0 0 30px rgba(255, 69, 0, 0.3);
+    border-color: var(--fire-primary);
+}
+
+.feature-icon {
+    color: var(--fire-primary);
+    font-size: 3rem;
+    text-shadow: 0 0 20px rgba(255, 69, 0, 0.5);
+}
+
+.feature-card h3 {
+    color: white;
+}
+
+.feature-card p {
+    color: #ccc;
+}
+
+/* ============================================
+   FOOTER - ТЕМНАЯ ВЕРСИЯ
+   ============================================ */
+.footer {
+    background: var(--dark-card);
+    border-top: 2px solid var(--fire-primary);
+    color: #ccc;
+}
+
+.footer h3 {
+    color: white;
+}
+
+.footer a {
+    color: #999;
+    transition: color 0.3s ease;
+}
+
+.footer a:hover {
+    color: var(--fire-primary);
+}
+
+/* ============================================
+   NAVBAR - ТЕМНАЯ ВЕРСИЯ
+   ============================================ */
+.navbar {
+    background: var(--dark-card);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    border-bottom: 2px solid rgba(255, 69, 0, 0.3);
+}
+
+.navbar-logo {
+    color: white;
+}
+
+.navbar-menu a {
+    color: #ccc;
+}
+
+.navbar-menu a:hover {
+    color: var(--fire-primary);
 }
 
 /* ============================================
    КНОПКИ ФАЕРШОУ
    ============================================ */
-.btn-primary.fire-btn {
+.btn-primary {
     background: linear-gradient(135deg, var(--fire-primary), var(--fire-secondary));
     position: relative;
     overflow: hidden;
+    box-shadow: 0 4px 15px rgba(255, 69, 0, 0.4);
 }
 
-.btn-primary.fire-btn::before {
+.btn-primary::before {
     content: '';
     position: absolute;
     top: -50%;
@@ -436,8 +729,8 @@
     }
 }
 
-.btn-primary.fire-btn:hover {
-    box-shadow: 0 0 30px rgba(255, 69, 0, 0.6);
+.btn-primary:hover {
+    box-shadow: 0 0 30px rgba(255, 69, 0, 0.8);
     animation: fireBtnPulse 0.3s ease;
 }
 
@@ -450,44 +743,33 @@
     }
 }
 
+.btn-secondary {
+    background: transparent;
+    border: 2px solid var(--fire-primary);
+    color: var(--fire-primary);
+}
+
+.btn-secondary:hover {
+    background: var(--fire-primary);
+    color: white;
+    box-shadow: 0 0 20px rgba(255, 69, 0, 0.6);
+}
+
 /* ============================================
    МОДАЛЬНОЕ ОКНО ДЛЯ ИЗОБРАЖЕНИЙ
    ============================================ */
 #imageModal .modal-content {
-    background: transparent;
-    max-width: 90vw;
-    padding: 0;
+    background: var(--dark-card);
+    border: 2px solid var(--fire-primary);
 }
 
 #imageModal img {
     max-width: 100%;
     max-height: 85vh;
     border-radius: 15px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-}
-
-/* ============================================
-   ОГНЕННЫЕ ЧАСТИЦЫ (ОПЦИОНАЛЬНО)
-   ============================================ */
-.fire-particle {
-    position: absolute;
-    width: 5px;
-    height: 5px;
-    background: var(--fire-primary);
-    border-radius: 50%;
-    pointer-events: none;
-    animation: float-up 3s ease-in-out infinite;
-}
-
-@keyframes float-up {
-    0% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-    100% {
-        opacity: 0;
-        transform: translateY(-100px) scale(0);
-    }
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.8),
+        0 0 40px rgba(255, 69, 0, 0.3);
 }
 
 /* ============================================
@@ -511,19 +793,15 @@
     .portfolio-image {
         height: 200px;
     }
-}
 
-/* ============================================
-   ДОПОЛНИТЕЛЬНЫЕ ЭФФЕКТЫ
-   ============================================ */
-.fireshow-section .section-title::after {
-    background: linear-gradient(90deg, var(--fire-primary), var(--fire-orange));
-}
+    .fireshow-banner::after {
+        font-size: 3rem;
+        letter-spacing: 1rem;
+    }
 
-.fireshow-section .feature-card:hover {
-    box-shadow: 0 10px 30px rgba(255, 69, 0, 0.2);
-}
-
-.fireshow-section .feature-icon {
-    color: var(--fire-primary);
+    /* Упрощаем анимации на мобильных */
+    .portfolio-card:hover,
+    .program-card:hover {
+        transform: none;
+    }
 }
