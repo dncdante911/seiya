@@ -46,6 +46,18 @@
         </div>
 
         <div class="nav-group">
+            <div class="nav-group-title">Контент</div>
+            <a href="news.php" class="nav-item">
+                <span class="nav-icon">📰</span>
+                <span class="nav-text">Новости</span>
+            </a>
+            <a href="contacts.php" class="nav-item">
+                <span class="nav-icon">📞</span>
+                <span class="nav-text">Контакты</span>
+            </a>
+        </div>
+
+        <div class="nav-group">
             <div class="nav-group-title">Общее</div>
             <a href="chat.php" class="nav-item">
                 <span class="nav-icon">💬</span>

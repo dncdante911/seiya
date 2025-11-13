@@ -145,19 +145,22 @@ $news_list = $db->query($sql)->fetchAll();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Управление новостями и объявлениями - Админка</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
     <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
-<body class="admin-body">
-    <?php include 'includes/header.php'; ?>
-
-    <div class="admin-container">
+<body>
+    <div class="admin-wrapper">
         <?php include 'includes/sidebar.php'; ?>
 
-        <main class="admin-main">
-            <div class="page-header">
+        <div class="admin-content">
+            <header class="admin-header">
                 <h1>📰 Новости и объявления</h1>
-                <button class="btn btn-primary" onclick="showAddModal()">+ Добавить</button>
-            </div>
+                <div class="admin-user">
+                    <button class="btn btn-primary" onclick="showAddModal()">+ Добавить</button>
+                </div>
+            </header>
+
+            <main style="padding: 2rem;">
 
             <?php if ($success): ?>
                 <div class="alert alert-success"><?= escape($success) ?></div>
@@ -267,7 +270,8 @@ $news_list = $db->query($sql)->fetchAll();
                 </table>
             </div>
         </main>
-    </div>
+        </div> <!-- /.admin-content -->
+    </div> <!-- /.admin-wrapper -->
 
     <!-- Модальное окно добавления -->
     <div id="addModal" class="modal">
