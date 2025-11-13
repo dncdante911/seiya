@@ -5,26 +5,20 @@ require_once __DIR__ . '/../config/functions.php';
 session_start();
 $db = getDB();
 
-// Проверяем, нужно ли создать новую сессию или восстановить старую
+// Проверяем, нужно ли попросить ввести имя
 $needNameInput = false;
+$messages = [];
 
 if (!isset($_SESSION['chat_session_id'])) {
     // Новый пользователь - попросим ввести имя
     $needNameInput = true;
-    $session_token = bin2hex(random_bytes(32));
-    $_SESSION['chat_session_token'] = $session_token;
-
-    $stmt = $db->prepare("INSERT INTO chat_sessions (session_token, customer_name) VALUES (?, ?)");
-    $stmt->execute([$session_token, 'Гость']);
-    $_SESSION['chat_session_id'] = $db->lastInsertId();
+} else {
+    // Получаем сообщения для существующей сессии
+    $session_id = $_SESSION['chat_session_id'];
+    $stmt = $db->prepare("SELECT * FROM chat_messages WHERE session_id = ? ORDER BY created_at ASC");
+    $stmt->execute([$session_id]);
+    $messages = $stmt->fetchAll();
 }
-
-$session_id = $_SESSION['chat_session_id'];
-
-// Получаем сообщения
-$stmt = $db->prepare("SELECT * FROM chat_messages WHERE session_id = ? ORDER BY created_at ASC");
-$stmt->execute([$session_id]);
-$messages = $stmt->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="ru">

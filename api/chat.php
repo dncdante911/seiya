@@ -390,13 +390,22 @@ try {
                 jsonResponse(['success' => false, 'error' => 'Name required'], 400);
             }
 
+            // Если сессии нет, создаем новую
             if (!isset($_SESSION['chat_session_id'])) {
-                jsonResponse(['success' => false, 'error' => 'No active session'], 400);
+                $session_token = bin2hex(random_bytes(32));
+                $_SESSION['chat_session_token'] = $session_token;
+
+                $stmt = $db->prepare("INSERT INTO chat_sessions (session_token, customer_name) VALUES (?, ?)");
+                $stmt->execute([$session_token, $name]);
+                $_SESSION['chat_session_id'] = $db->lastInsertId();
+
+                jsonResponse(['success' => true, 'message' => 'Session created and name set']);
+                break;
             }
 
             $session_id = $_SESSION['chat_session_id'];
 
-            // Обновляем имя в сессии
+            // Обновляем имя в существующей сессии
             $stmt = $db->prepare("UPDATE chat_sessions SET customer_name = ? WHERE id = ?");
             $stmt->execute([$name, $session_id]);
 
