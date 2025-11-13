@@ -37,7 +37,7 @@ function generateSlug($string) {
 
 // Форматирование цены
 function formatPrice($price) {
-    return number_format($price, 0, '.', ' ') . ' ₽';
+    return number_format($price, 0, '.', ' ') . ' грн';
 }
 
 // Валидация email

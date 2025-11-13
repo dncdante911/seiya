@@ -143,7 +143,7 @@ foreach ($types as $type) {
                         </div>
                     </div>
                     <div class="summary-total">
-                        Итого: <span id="total-price">0 ₽</span>
+                        Итого: <span id="total-price">0 грн</span>
                     </div>
                     <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="openOrderModal()">
                         Заказать торт
@@ -236,7 +236,7 @@ foreach ($types as $type) {
                 }
             });
 
-            document.getElementById('total-price').textContent = total.toLocaleString('ru-RU') + ' ₽';
+            document.getElementById('total-price').textContent = total.toLocaleString('ru-RU') + ' грн';
         }
 
         function openOrderModal() {

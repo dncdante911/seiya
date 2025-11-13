@@ -65,7 +65,7 @@ $programs = $stmt->fetchAll();
                         </select>
                     </div>
                     <div style="font-size: 1.2rem; margin-top: 1rem;">
-                        <strong>Итоговая стоимость: <span id="totalPrice">0 ₽</span></strong>
+                        <strong>Итоговая стоимость: <span id="totalPrice">0 грн</span></strong>
                     </div>
                 </div>
 
@@ -169,7 +169,7 @@ $programs = $stmt->fetchAll();
             const numArtists = parseInt(document.getElementById('numArtists').value) || selectedProgram.min;
             const total = selectedProgram.price * numArtists;
 
-            document.getElementById('totalPrice').textContent = total.toLocaleString('ru-RU') + ' ₽';
+            document.getElementById('totalPrice').textContent = total.toLocaleString('ru-RU') + ' грн';
         }
 
         async function submitFireshowOrder(e) {
@@ -200,7 +200,7 @@ $programs = $stmt->fetchAll();
                     document.querySelectorAll('.program-option').forEach(opt => {
                         opt.classList.remove('selected');
                     });
-                    document.getElementById('totalPrice').textContent = '0 ₽';
+                    document.getElementById('totalPrice').textContent = '0 грн';
                 } else {
                     alert('Ошибка: ' + result.error);
                 }

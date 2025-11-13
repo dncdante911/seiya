@@ -1,11 +1,22 @@
 /* Стили для раздела фаершоу */
 
+:root {
+    --fire-color: #ff4500;
+    --fire-secondary: #ff6347;
+    --light-color: #f8f9fa;
+    --dark-color: #2c3e50;
+}
+
 .fireshow-banner {
     background: linear-gradient(135deg, #ff4500 0%, #ff6347 100%);
+    position: relative;
+    overflow: hidden;
 }
 
 .fireshow-cta {
     background: linear-gradient(135deg, #ff4500 0%, #ff6347 100%);
+    position: relative;
+    overflow: hidden;
 }
 
 /* Портфолио */
@@ -199,6 +210,46 @@
     margin: 1.5rem 0;
 }
 
+/* Дополнительные эффекты для карточек */
+.portfolio-card:hover,
+.program-card:hover {
+    box-shadow: 0 10px 30px rgba(255, 69, 0, 0.2);
+}
+
+.program-card:hover .program-price {
+    transform: scale(1.1);
+    transition: transform 0.3s ease;
+}
+
+/* Анимации появления */
+.portfolio-card,
+.program-card {
+    animation: fadeInUp 0.6s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Эффект для кнопок */
+.btn-primary {
+    background: var(--fire-color);
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: var(--fire-secondary);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 69, 0, 0.3);
+}
+
 /* Адаптивность */
 @media (max-width: 768px) {
     .program-detail {
@@ -207,6 +258,14 @@
 
     .portfolio-grid,
     .programs-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .order-form-container {
+        padding: 1.5rem;
+    }
+
+    .program-selector {
         grid-template-columns: 1fr;
     }
 }
