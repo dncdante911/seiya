@@ -92,8 +92,10 @@ try {
                 jsonResponse(['success' => false, 'error' => 'Session not found'], 404);
             }
 
+            // Если сессия закрыта, автоматически открываем её при ответе админа
             if ($session['status'] === 'closed') {
-                jsonResponse(['success' => false, 'error' => 'Session is closed'], 400);
+                $stmt = $db->prepare("UPDATE chat_sessions SET status = 'active', updated_at = NOW() WHERE id = ?");
+                $stmt->execute([$session_id]);
             }
 
             // Определяем тип сообщения
@@ -107,8 +109,8 @@ try {
             ");
             $stmt->execute([$session_id, $message, $message_type, $image_path]);
 
-            // Обновляем время последнего обновления сессии
-            $stmt = $db->prepare("UPDATE chat_sessions SET updated_at = NOW() WHERE id = ?");
+            // Обновляем время последнего обновления сессии и статус
+            $stmt = $db->prepare("UPDATE chat_sessions SET status = 'active', updated_at = NOW() WHERE id = ?");
             $stmt->execute([$session_id]);
 
             jsonResponse([
