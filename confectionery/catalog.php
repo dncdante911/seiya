@@ -8,8 +8,10 @@ $db = getDB();
 $stmt = $db->query("SELECT * FROM categories WHERE active = 1 ORDER BY sort_order");
 $categories = $stmt->fetchAll();
 
-// Фильтрация по категории
-$category_filter = isset($_GET['category']) ? $_GET['category'] : null;
+// Получаем параметры фильтрации
+$category_filter = $_GET['category'] ?? null;
+$search_query = trim($_GET['search'] ?? '');
+$sort_by = $_GET['sort'] ?? 'newest';
 $category_id = null;
 
 if ($category_filter) {
@@ -21,7 +23,7 @@ if ($category_filter) {
     }
 }
 
-// Получаем товары
+// Получаем товары с фильтрацией
 $sql = "SELECT p.*, c.name as category_name
         FROM products p
         LEFT JOIN categories c ON p.category_id = c.id
@@ -31,7 +33,25 @@ if ($category_id) {
     $sql .= " AND p.category_id = " . intval($category_id);
 }
 
-$sql .= " ORDER BY p.created_at DESC";
+if ($search_query) {
+    $sql .= " AND (p.name LIKE '%" . $db->quote($search_query) . "%'
+              OR p.description LIKE '%" . $db->quote($search_query) . "%')";
+}
+
+// Сортировка
+switch ($sort_by) {
+    case 'price_asc':
+        $sql .= " ORDER BY p.price ASC";
+        break;
+    case 'price_desc':
+        $sql .= " ORDER BY p.price DESC";
+        break;
+    case 'name':
+        $sql .= " ORDER BY p.name ASC";
+        break;
+    default: // newest
+        $sql .= " ORDER BY p.created_at DESC";
+}
 
 $stmt = $db->query($sql);
 $products = $stmt->fetchAll();
@@ -44,6 +64,112 @@ $products = $stmt->fetchAll();
     <title>Каталог товаров - Кондитерка</title>
     <link rel="stylesheet" href="../assets/css/main.css">
     <link rel="stylesheet" href="../assets/css/confectionery.css">
+    <style>
+        .catalog-controls {
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.8rem 2.5rem 0.8rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+        }
+
+        .search-box button {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--primary-color);
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .search-box button:hover {
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .sort-select {
+            padding: 0.8rem 1.2rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sort-select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .results-count {
+            color: #666;
+            font-size: 0.95rem;
+            margin-left: auto;
+        }
+
+        .product-card {
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-image {
+            cursor: pointer;
+            transition: transform 0.5s ease;
+        }
+
+        .product-card:hover .product-image {
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .catalog-controls {
+                flex-direction: column;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .results-count {
+                margin-left: 0;
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Навигация -->
@@ -68,14 +194,52 @@ $products = $stmt->fetchAll();
     <div class="container">
         <h1 class="section-title">Каталог товаров</h1>
 
-        <!-- Фильтры -->
+        <!-- Поиск и сортировка -->
+        <div class="catalog-controls">
+            <form class="search-box" method="GET" action="catalog.php">
+                <?php if ($category_filter): ?>
+                    <input type="hidden" name="category" value="<?= escape($category_filter) ?>">
+                <?php endif; ?>
+                <input type="text"
+                       name="search"
+                       placeholder="Поиск товаров..."
+                       value="<?= escape($search_query) ?>">
+                <button type="submit">🔍</button>
+            </form>
+
+            <select class="sort-select" onchange="window.location.href=this.value">
+                <option value="?<?= http_build_query(array_merge($_GET, ['sort' => 'newest'])) ?>"
+                        <?= $sort_by === 'newest' ? 'selected' : '' ?>>
+                    Сначала новые
+                </option>
+                <option value="?<?= http_build_query(array_merge($_GET, ['sort' => 'price_asc'])) ?>"
+                        <?= $sort_by === 'price_asc' ? 'selected' : '' ?>>
+                    Цена: по возрастанию
+                </option>
+                <option value="?<?= http_build_query(array_merge($_GET, ['sort' => 'price_desc'])) ?>"
+                        <?= $sort_by === 'price_desc' ? 'selected' : '' ?>>
+                    Цена: по убыванию
+                </option>
+                <option value="?<?= http_build_query(array_merge($_GET, ['sort' => 'name'])) ?>"
+                        <?= $sort_by === 'name' ? 'selected' : '' ?>>
+                    По названию
+                </option>
+            </select>
+
+            <div class="results-count">
+                Найдено товаров: <strong><?= count($products) ?></strong>
+            </div>
+        </div>
+
+        <!-- Фильтры по категориям -->
         <div class="catalog-header">
             <div class="filter-buttons">
-                <a href="catalog.php" class="filter-btn <?= !$category_filter ? 'active' : '' ?>">
+                <a href="catalog.php?<?= $search_query ? 'search=' . urlencode($search_query) : '' ?>"
+                   class="filter-btn <?= !$category_filter ? 'active' : '' ?>">
                     Все товары
                 </a>
                 <?php foreach ($categories as $category): ?>
-                    <a href="catalog.php?category=<?= $category['slug'] ?>"
+                    <a href="catalog.php?category=<?= $category['slug'] ?><?= $search_query ? '&search=' . urlencode($search_query) : '' ?>"
                        class="filter-btn <?= $category_filter === $category['slug'] ? 'active' : '' ?>">
                         <?= escape($category['name']) ?>
                     </a>
@@ -165,6 +329,13 @@ $products = $stmt->fetchAll();
         </div>
     </footer>
 
+    <!-- Модальное окно для просмотра изображений -->
+    <div id="imageModal" class="modal" onclick="closeImageModal()">
+        <span class="modal-close">&times;</span>
+        <img id="modalImage" class="modal-content" onclick="event.stopPropagation()">
+    </div>
+
+    <script src="../assets/js/confectionery.js"></script>
     <script>
         function toggleMenu() {
             const menu = document.getElementById('navbarMenu');
@@ -179,6 +350,91 @@ $products = $stmt->fetchAll();
                 document.querySelector('.navbar-toggle').classList.remove('active');
             });
         });
+
+        // Открытие изображений в модальном окне
+        function openImageModal(imageSrc) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.style.display = 'flex';
+            modalImg.src = imageSrc;
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        // Добавляем обработчики клика на изображения
+        document.querySelectorAll('.product-image').forEach(img => {
+            if (img.tagName === 'IMG') {
+                img.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openImageModal(this.src);
+                });
+            }
+        });
+
+        // Закрытие по Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeImageModal();
+            }
+        });
     </script>
+
+    <style>
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: zoomIn 0.3s ease;
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10000;
+        }
+
+        .modal-close:hover {
+            transform: scale(1.2) rotate(90deg);
+        }
+    </style>
 </body>
 </html>

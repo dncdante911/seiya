@@ -14,6 +14,139 @@ $portfolio = $stmt->fetchAll();
     <title>Портфолио - Фаершоу</title>
     <link rel="stylesheet" href="../assets/css/main.css">
     <link rel="stylesheet" href="../assets/css/fireshow.css">
+    <style>
+        .portfolio-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .portfolio-card video {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .portfolio-card:hover .video-overlay {
+            opacity: 1;
+        }
+
+        .play-button {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 69, 0, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            box-shadow: 0 4px 20px rgba(255, 69, 0, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 4px 20px rgba(255, 69, 0, 0.5); }
+            50% { transform: scale(1.1); box-shadow: 0 8px 30px rgba(255, 69, 0, 0.8); }
+        }
+
+        /* Модальное окно для видео */
+        #videoModal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            align-items: center;
+            justify-content: center;
+        }
+
+        #videoModal.active {
+            display: flex;
+        }
+
+        .video-modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+
+        .video-modal-content video {
+            width: 100%;
+            max-height: 80vh;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            background: rgba(255, 69, 0, 0.9);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+            background: rgba(255, 99, 71, 1);
+        }
+
+        /* Модальное окно для фото */
+        #imageModal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            align-items: center;
+            justify-content: center;
+        }
+
+        #imageModal.active {
+            display: flex;
+        }
+
+        .image-modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            animation: zoomIn 0.3s ease;
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -52,11 +185,17 @@ $portfolio = $stmt->fetchAll();
                             <img src="../<?= escape($item['thumbnail'] ?: $item['media_path']) ?>"
                                  alt="<?= escape($item['title']) ?>"
                                  class="portfolio-image"
-                                 onclick="openModal('<?= escape($item['media_path']) ?>', 'image')">
+                                 onclick="openImageModal('../<?= escape($item['media_path']) ?>')">
                         <?php else: ?>
-                            <video class="portfolio-image" controls>
-                                <source src="../<?= escape($item['media_path']) ?>" type="video/mp4">
-                            </video>
+                            <div style="position: relative; cursor: pointer;"
+                                 onclick="openVideoModal('../<?= escape($item['media_path']) ?>')">
+                                <video class="portfolio-image" preload="metadata">
+                                    <source src="../<?= escape($item['media_path']) ?>#t=0.5" type="video/mp4">
+                                </video>
+                                <div class="video-overlay">
+                                    <div class="play-button">▶</div>
+                                </div>
+                            </div>
                         <?php endif; ?>
 
                         <div class="portfolio-info">
@@ -75,10 +214,18 @@ $portfolio = $stmt->fetchAll();
     </div>
 
     <!-- Модальное окно для просмотра изображений -->
-    <div id="imageModal" class="modal" onclick="closeModal()">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <button class="modal-close" onclick="closeModal()">&times;</button>
-            <img id="modalImage" src="" alt="" style="max-width: 100%; max-height: 80vh;">
+    <div id="imageModal" onclick="closeImageModal()">
+        <button class="modal-close-btn" onclick="closeImageModal()">&times;</button>
+        <img class="image-modal-content" id="modalImage" src="" alt="" onclick="event.stopPropagation()">
+    </div>
+
+    <!-- Модальное окно для видео -->
+    <div id="videoModal" onclick="closeVideoModal()">
+        <div class="video-modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close-btn" onclick="closeVideoModal()">&times;</button>
+            <video id="modalVideo" controls autoplay>
+                <source src="" type="video/mp4">
+            </video>
         </div>
     </div>
 
@@ -106,16 +253,55 @@ $portfolio = $stmt->fetchAll();
             });
         });
 
-        function openModal(imageSrc, type) {
-            if (type === 'image') {
-                document.getElementById('modalImage').src = '../' + imageSrc;
-                document.getElementById('imageModal').classList.add('active');
-            }
+        // Открыть модальное окно с изображением
+        function openImageModal(imageSrc) {
+            const modal = document.getElementById('imageModal');
+            const img = document.getElementById('modalImage');
+            img.src = imageSrc;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
         }
 
-        function closeModal() {
-            document.getElementById('imageModal').classList.remove('active');
+        // Закрыть модальное окно с изображением
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
         }
+
+        // Открыть модальное окно с видео
+        function openVideoModal(videoSrc) {
+            const modal = document.getElementById('videoModal');
+            const video = document.getElementById('modalVideo');
+            const source = video.querySelector('source');
+
+            source.src = videoSrc;
+            video.load();
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Автовоспроизведение
+            setTimeout(() => video.play(), 100);
+        }
+
+        // Закрыть модальное окно с видео
+        function closeVideoModal() {
+            const modal = document.getElementById('videoModal');
+            const video = document.getElementById('modalVideo');
+
+            video.pause();
+            video.currentTime = 0;
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Закрытие по клавише Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeImageModal();
+                closeVideoModal();
+            }
+        });
     </script>
 </body>
 </html>
