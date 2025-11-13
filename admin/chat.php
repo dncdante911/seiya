@@ -586,45 +586,45 @@ if ($selected_session_id) {
                                 <?php endif; ?>
                             </div>
 
-                            <?php if ($selected_session['status'] === 'active'): ?>
-                                <div class="typing-indicator" id="typingIndicator">
-                                    Клиент печатает...
-                                </div>
+                            <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                                Клиент печатает...
+                            </div>
 
-                                <div class="chat-input-container">
-                                    <form id="chatForm" class="chat-input-form" onsubmit="sendMessage(event)">
-                                        <input type="hidden" name="session_id" value="<?= $selected_session['id'] ?>">
-                                        <input type="hidden" name="image_file" id="imageFileInput">
+                            <div class="chat-input-container">
+                                <?php if ($selected_session['status'] === 'closed'): ?>
+                                    <div style="padding: 1rem; text-align: center; color: #999; background: #f5f5f5; border-radius: 8px; margin-bottom: 1rem;">
+                                        Чат закрыт. <button type="button" class="btn btn-primary btn-sm" onclick="reopenChat(<?= $selected_session_id ?>)">Открыть заново</button>
+                                    </div>
+                                <?php endif; ?>
 
-                                        <textarea
-                                            name="message"
-                                            id="messageInput"
-                                            class="chat-input"
-                                            placeholder="Введите сообщение..."
-                                            rows="1"
-                                            onkeydown="handleKeyPress(event)"></textarea>
+                                <form id="chatForm" class="chat-input-form" onsubmit="sendMessage(event)">
+                                    <input type="hidden" name="session_id" id="sessionIdInput" value="<?= $selected_session_id ?>">
+                                    <input type="hidden" name="image_file" id="imageFileInput">
 
-                                        <div class="input-actions">
-                                            <label for="fileInput" class="btn-icon" title="Прикрепить изображение">
-                                                📎
-                                            </label>
-                                            <input type="file"
-                                                   id="fileInput"
-                                                   accept="image/*"
-                                                   style="display: none;"
-                                                   onchange="handleFileSelect(event)">
+                                    <textarea
+                                        name="message"
+                                        id="messageInput"
+                                        class="chat-input"
+                                        placeholder="Введите сообщение..."
+                                        rows="1"
+                                        onkeydown="handleKeyPress(event)"></textarea>
 
-                                            <button type="submit" class="btn-icon btn-send" title="Отправить">
-                                                ➤
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            <?php else: ?>
-                                <div class="chat-input-container" style="text-align: center; color: #999;">
-                                    Чат закрыт. Для отправки сообщений откройте его снова.
-                                </div>
-                            <?php endif; ?>
+                                    <div class="input-actions">
+                                        <label for="fileInput" class="btn-icon" title="Прикрепить изображение">
+                                            📎
+                                        </label>
+                                        <input type="file"
+                                               id="fileInput"
+                                               accept="image/*"
+                                               style="display: none;"
+                                               onchange="handleFileSelect(event)">
+
+                                        <button type="submit" class="btn-icon btn-send" title="Отправить">
+                                            ➤
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         <?php else: ?>
                             <div class="empty-state">
                                 <div class="empty-state-icon">💬</div>
@@ -670,6 +670,17 @@ if ($selected_session_id) {
             const imageFile = document.getElementById('imageFileInput').value;
 
             if (!message && !imageFile) {
+                return;
+            }
+
+            // Убедимся, что session_id установлен корректно
+            const sessionIdInput = document.getElementById('sessionIdInput');
+            if (sessionIdInput && selectedSessionId) {
+                sessionIdInput.value = selectedSessionId;
+            }
+
+            if (!selectedSessionId) {
+                alert('Ошибка: сессия не выбрана');
                 return;
             }
 
