@@ -964,6 +964,70 @@ if ($selected_session_id) {
             });
         }
 
+        // Звуковое оповещение о новом сообщении
+        let lastMessageCount = 0;
+        let audioContext = null;
+
+        function playNotificationSound() {
+            try {
+                // Инициализируем AudioContext если его нет
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+
+                // Создаем простой звук уведомления
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                // Настройки звука
+                oscillator.frequency.value = 800; // Частота 800 Hz
+                oscillator.type = 'sine'; // Синусоида
+
+                // Настройки громкости с затуханием
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+
+                // Воспроизведение
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } catch (error) {
+                console.error('Error playing sound:', error);
+            }
+        }
+
+        // Проверка новых сообщений с звуковым уведомлением
+        let previousUnreadCount = 0;
+
+        async function checkForNewMessages() {
+            try {
+                const response = await fetch('../api/chat.php?action=get_sessions');
+                const data = await response.json();
+
+                if (data.success) {
+                    const totalUnread = data.sessions.reduce((sum, session) => {
+                        return sum + parseInt(session.unread_count || 0);
+                    }, 0);
+
+                    // Если есть новые непрочитанные сообщения - воспроизводим звук
+                    if (totalUnread > previousUnreadCount && previousUnreadCount > 0) {
+                        playNotificationSound();
+                        // Мигание заголовка
+                        document.title = '🔔 Новое сообщение!';
+                        setTimeout(() => {
+                            document.title = '💬 Чаты - Админ-панель';
+                        }, 3000);
+                    }
+
+                    previousUnreadCount = totalUnread;
+                }
+            } catch (error) {
+                console.error('Error checking messages:', error);
+            }
+        }
+
         // Автоматическое обновление сообщений каждые 3 секунды
         if (selectedSessionId) {
             autoRefreshInterval = setInterval(() => {
@@ -974,7 +1038,11 @@ if ($selected_session_id) {
         // Автоматическое обновление списка сессий каждые 5 секунд
         setInterval(() => {
             loadSessions();
+            checkForNewMessages(); // Проверяем новые сообщения со звуком
         }, 5000);
+
+        // Инициализируем счетчик непрочитанных при загрузке
+        checkForNewMessages();
 
         // Автоматическое изменение размера textarea
         const messageInput = document.getElementById('messageInput');

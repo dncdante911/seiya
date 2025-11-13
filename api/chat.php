@@ -381,8 +381,107 @@ try {
             ]);
             break;
 
+        // Установить имя клиента
+        case 'set_name':
+            session_start();
+            $name = trim($_POST['name'] ?? '');
+
+            if (!$name) {
+                jsonResponse(['success' => false, 'error' => 'Name required'], 400);
+            }
+
+            if (!isset($_SESSION['chat_session_id'])) {
+                jsonResponse(['success' => false, 'error' => 'No active session'], 400);
+            }
+
+            $session_id = $_SESSION['chat_session_id'];
+
+            // Обновляем имя в сессии
+            $stmt = $db->prepare("UPDATE chat_sessions SET customer_name = ? WHERE id = ?");
+            $stmt->execute([$name, $session_id]);
+
+            jsonResponse([
+                'success' => true,
+                'message' => 'Name updated'
+            ]);
+            break;
+
+        // Очистить сессию при закрытии страницы
+        case 'clear_session':
+            session_start();
+
+            if (isset($_SESSION['chat_session_id'])) {
+                $session_id = $_SESSION['chat_session_id'];
+
+                // Помечаем сессию как неактивную
+                $stmt = $db->prepare("UPDATE chat_sessions SET status = 'closed', updated_at = NOW() WHERE id = ?");
+                $stmt->execute([$session_id]);
+
+                // Очищаем PHP сессию
+                unset($_SESSION['chat_session_id']);
+                unset($_SESSION['chat_session_token']);
+            }
+
+            jsonResponse([
+                'success' => true,
+                'message' => 'Session cleared'
+            ]);
+            break;
+
         default:
-            jsonResponse(['success' => false, 'error' => 'Invalid action'], 400);
+            // Для POST запросов без action - отправка сообщения от клиента (старый API)
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$action) {
+                session_start();
+
+                if (!isset($_SESSION['chat_session_id'])) {
+                    jsonResponse(['success' => false, 'error' => 'No active session'], 400);
+                }
+
+                $session_id = $_SESSION['chat_session_id'];
+                $message = trim($_POST['message'] ?? '');
+                $image_path = null;
+
+                // Обработка загрузки изображения
+                if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                    $upload_result = uploadImage($_FILES['image'], 'uploads/chat/');
+
+                    if ($upload_result['success']) {
+                        $image_path = $upload_result['filepath'];
+                    } else {
+                        jsonResponse(['success' => false, 'error' => $upload_result['error']]);
+                    }
+                }
+
+                // Проверяем что есть либо сообщение либо изображение
+                if (empty($message) && !$image_path) {
+                    jsonResponse(['success' => false, 'error' => 'Message or image required'], 400);
+                }
+
+                // Если только изображение, устанавливаем дефолтное сообщение
+                if (empty($message) && $image_path) {
+                    $message = 'Фото';
+                }
+
+                $message_type = $image_path ? 'image' : 'text';
+
+                // Вставляем сообщение
+                $stmt = $db->prepare("
+                    INSERT INTO chat_messages (session_id, sender_type, message, message_type, image_path, is_read, created_at)
+                    VALUES (?, 'customer', ?, ?, ?, 0, NOW())
+                ");
+                $stmt->execute([$session_id, $message, $message_type, $image_path]);
+
+                // Обновляем время последнего обновления сессии
+                $stmt = $db->prepare("UPDATE chat_sessions SET updated_at = NOW() WHERE id = ?");
+                $stmt->execute([$session_id]);
+
+                jsonResponse([
+                    'success' => true,
+                    'message_id' => $db->lastInsertId()
+                ]);
+            } else {
+                jsonResponse(['success' => false, 'error' => 'Invalid action'], 400);
+            }
     }
 } catch (Exception $e) {
     error_log('Chat API Error: ' . $e->getMessage());

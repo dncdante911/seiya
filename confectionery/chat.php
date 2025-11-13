@@ -5,8 +5,12 @@ require_once __DIR__ . '/../config/functions.php';
 session_start();
 $db = getDB();
 
-// Создаем или получаем сессию чата
+// Проверяем, нужно ли создать новую сессию или восстановить старую
+$needNameInput = false;
+
 if (!isset($_SESSION['chat_session_id'])) {
+    // Новый пользователь - попросим ввести имя
+    $needNameInput = true;
     $session_token = bin2hex(random_bytes(32));
     $_SESSION['chat_session_token'] = $session_token;
 
@@ -108,8 +112,53 @@ $messages = $stmt->fetchAll();
         </div>
     </footer>
 
+    <!-- Модальное окно для ввода имени -->
+    <?php if ($needNameInput): ?>
+    <div id="nameModal" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    ">
+        <div style="
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        ">
+            <h2 style="margin-top: 0; color: #ff6b9d;">👋 Добро пожаловать!</h2>
+            <p style="color: #666; margin-bottom: 1.5rem;">
+                Представьтесь, пожалуйста, чтобы кондитеру было проще с вами общаться:
+            </p>
+            <form id="nameForm" onsubmit="submitName(event)">
+                <input
+                    type="text"
+                    id="customerName"
+                    placeholder="Ваше имя"
+                    class="form-control"
+                    required
+                    style="margin-bottom: 1rem;"
+                    autocomplete="name"
+                >
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    Начать чат
+                </button>
+            </form>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <script>
         let selectedFile = null;
+        const needNameInput = <?= $needNameInput ? 'true' : 'false' ?>;
 
         function scrollToBottom() {
             const chatMessages = document.getElementById('chatMessages');
@@ -220,6 +269,50 @@ $messages = $stmt->fetchAll();
                 document.getElementById('navbarMenu').classList.remove('active');
                 document.querySelector('.navbar-toggle').classList.remove('active');
             });
+        });
+
+        // Функция для сохранения имени клиента
+        async function submitName(e) {
+            e.preventDefault();
+            const name = document.getElementById('customerName').value.trim();
+
+            if (!name) return;
+
+            try {
+                const formData = new FormData();
+                formData.append('action', 'set_name');
+                formData.append('name', name);
+
+                const response = await fetch('../api/chat.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Закрываем модальное окно
+                    const modal = document.getElementById('nameModal');
+                    if (modal) {
+                        modal.style.display = 'none';
+                    }
+                } else {
+                    alert('Ошибка: ' + result.error);
+                }
+            } catch (error) {
+                alert('Произошла ошибка');
+            }
+        }
+
+        // Сброс сессии при закрытии страницы/вкладки
+        window.addEventListener('beforeunload', function(e) {
+            // Отправляем запрос на сброс сессии
+            navigator.sendBeacon('../api/chat.php?action=clear_session');
+        });
+
+        // Также сбрасываем при переходе на другую страницу
+        window.addEventListener('pagehide', function(e) {
+            navigator.sendBeacon('../api/chat.php?action=clear_session');
         });
     </script>
 </body>
