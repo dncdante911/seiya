@@ -35,7 +35,12 @@ $messages = $stmt->fetchAll();
     <nav class="navbar">
         <div class="navbar-container">
             <a href="../" class="navbar-logo">🎂 Кондитерка</a>
-            <ul class="navbar-menu">
+            <div class="navbar-toggle" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="navbar-menu" id="navbarMenu">
                 <li><a href="index.php">Главная</a></li>
                 <li><a href="catalog.php">Каталог</a></li>
                 <li><a href="constructor.php">Конструктор тортов</a></li>
@@ -200,6 +205,22 @@ $messages = $stmt->fetchAll();
                 console.error('Ошибка при проверке новых сообщений:', error);
             }
         }, 5000);
+
+        // Мобильное меню
+        function toggleMenu() {
+            const menu = document.getElementById('navbarMenu');
+            const toggle = document.querySelector('.navbar-toggle');
+            menu.classList.toggle('active');
+            toggle.classList.toggle('active');
+        }
+
+        // Закрыть меню при клике на пункт
+        document.querySelectorAll('.navbar-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('navbarMenu').classList.remove('active');
+                document.querySelector('.navbar-toggle').classList.remove('active');
+            });
+        });
     </script>
 </body>
 </html>
