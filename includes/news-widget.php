@@ -37,9 +37,17 @@ if (empty($news_items)) {
 
     <div class="news-widget-grid">
         <?php foreach ($news_items as $item): ?>
-            <div class="news-card">
+            <div class="news-card" onclick="openNewsModal(<?= $item['id'] ?>)" data-news-id="<?= $item['id'] ?>"
+                 data-news-title="<?= escape($item['title']) ?>"
+                 data-news-content="<?= escape($item['content']) ?>"
+                 data-news-image="<?= escape($item['image_path']) ?>"
+                 data-news-date="<?= formatDate($item['published_at'], 'd.m.Y') ?>"
+                 data-news-pinned="<?= $item['is_pinned'] ?>"
+                 data-news-type="<?= escape($item['type']) ?>">
                 <?php if ($item['image_path']): ?>
-                    <div class="news-card-image" style="background-image: url('../<?= escape($item['image_path']) ?>');"></div>
+                    <div class="news-card-image" style="background-image: url('/<?= escape($item['image_path']) ?>');"></div>
+                <?php else: ?>
+                    <div class="news-card-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
                 <?php endif; ?>
 
                 <div class="news-card-content">
@@ -214,4 +222,200 @@ if (empty($news_items)) {
         height: 150px;
     }
 }
+
+/* Модальное окно */
+.news-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 10000;
+    overflow-y: auto;
+    padding: 2rem;
+}
+
+.news-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.news-modal-content {
+    background: white;
+    border-radius: 20px;
+    max-width: 800px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.news-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.1);
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.news-modal-close:hover {
+    background: rgba(0, 0, 0, 0.2);
+    transform: rotate(90deg);
+}
+
+.news-modal-image {
+    width: 100%;
+    height: 300px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 20px 20px 0 0;
+}
+
+.news-modal-body {
+    padding: 2rem;
+}
+
+.news-modal-meta {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.news-modal-title {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #2d3748;
+    line-height: 1.3;
+}
+
+.news-modal-content-text {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #4a5568;
+    white-space: pre-wrap;
+}
+
+@media (max-width: 768px) {
+    .news-modal {
+        padding: 1rem;
+    }
+
+    .news-modal-content {
+        max-height: 95vh;
+    }
+
+    .news-modal-image {
+        height: 200px;
+    }
+
+    .news-modal-body {
+        padding: 1.5rem;
+    }
+
+    .news-modal-title {
+        font-size: 1.5rem;
+    }
+
+    .news-modal-content-text {
+        font-size: 1rem;
+    }
+}
 </style>
+
+<!-- Модальное окно для новостей -->
+<div id="newsModal" class="news-modal" onclick="closeNewsModal(event)">
+    <div class="news-modal-content" onclick="event.stopPropagation()">
+        <button class="news-modal-close" onclick="closeNewsModal()">×</button>
+        <div id="newsModalImage" class="news-modal-image"></div>
+        <div class="news-modal-body">
+            <div id="newsModalMeta" class="news-modal-meta"></div>
+            <h2 id="newsModalTitle" class="news-modal-title"></h2>
+            <div id="newsModalContent" class="news-modal-content-text"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openNewsModal(newsId) {
+    const card = document.querySelector(`[data-news-id="${newsId}"]`);
+    if (!card) return;
+
+    const modal = document.getElementById('newsModal');
+    const title = card.getAttribute('data-news-title');
+    const content = card.getAttribute('data-news-content');
+    const image = card.getAttribute('data-news-image');
+    const date = card.getAttribute('data-news-date');
+    const pinned = card.getAttribute('data-news-pinned');
+    const type = card.getAttribute('data-news-type');
+
+    // Заполняем модальное окно
+    document.getElementById('newsModalTitle').textContent = title;
+    document.getElementById('newsModalContent').textContent = content;
+
+    // Изображение
+    const imageEl = document.getElementById('newsModalImage');
+    if (image && image.trim() !== '') {
+        imageEl.style.backgroundImage = `url('/${image}')`;
+        imageEl.style.display = 'block';
+    } else {
+        imageEl.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+        imageEl.style.display = 'block';
+    }
+
+    // Метаданные
+    let metaHTML = '';
+    if (pinned === '1') {
+        metaHTML += '<span class="news-badge pinned">📌 <?= t('pinned') ?></span>';
+    }
+    if (type === 'announcement') {
+        metaHTML += '<span class="news-badge announcement">📢</span>';
+    }
+    metaHTML += `<span class="news-date">${date}</span>`;
+    document.getElementById('newsModalMeta').innerHTML = metaHTML;
+
+    // Показываем модальное окно
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeNewsModal(event) {
+    if (event && event.target.classList.contains('news-modal-content')) {
+        return;
+    }
+    const modal = document.getElementById('newsModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// Закрытие по Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeNewsModal();
+    }
+});
+</script>

@@ -21,6 +21,10 @@ $current_url = $_SERVER['REQUEST_URI'];
     display: flex;
     gap: 0.5rem;
     align-items: center;
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    z-index: 100;
 }
 
 .lang-btn {
@@ -60,6 +64,11 @@ $current_url = $_SERVER['REQUEST_URI'];
 }
 
 @media (max-width: 768px) {
+    .language-switcher {
+        top: 1rem;
+        right: 1rem;
+    }
+
     .lang-btn {
         padding: 0.4rem 0.8rem;
     }

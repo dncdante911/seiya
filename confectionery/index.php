@@ -18,30 +18,33 @@ $stmt = $db->query("SELECT p.*, c.name as category_name
 $featured_products = $stmt->fetchAll();
 ?>
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="<?= getCurrentLanguage() ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Кондитерка - Авторские торты и сладости</title>
+    <title><?= t('confectionery_page_title') ?></title>
     <link rel="stylesheet" href="../assets/css/main.css">
     <link rel="stylesheet" href="../assets/css/confectionery.css">
 </head>
 <body>
+    <!-- Переключатель языков -->
+    <?php include __DIR__ . '/../includes/language-switcher.php'; ?>
+
     <!-- Навигация -->
     <nav class="navbar">
         <div class="navbar-container">
-            <a href="../" class="navbar-logo">🎂 Кондитерка</a>
+            <a href="../" class="navbar-logo"><?= t('confectionery_logo') ?></a>
             <div class="navbar-toggle" onclick="toggleMenu()">
                 <span></span>
                 <span></span>
                 <span></span>
             </div>
             <ul class="navbar-menu" id="navbarMenu">
-                <li><a href="index.php">Главная</a></li>
-                <li><a href="catalog.php">Каталог</a></li>
-                <li><a href="constructor.php">Конструктор тортов</a></li>
-                <li><a href="chat.php">Чат с кондитером</a></li>
-                <li><a href="../">← На главную</a></li>
+                <li><a href="index.php"><?= t('home') ?></a></li>
+                <li><a href="catalog.php"><?= t('catalog') ?></a></li>
+                <li><a href="constructor.php"><?= t('cake_constructor') ?></a></li>
+                <li><a href="chat.php"><?= t('chat_with_confectioner') ?></a></li>
+                <li><a href="../"><?= t('back_to_main') ?></a></li>
             </ul>
         </div>
     </nav>
@@ -49,18 +52,18 @@ $featured_products = $stmt->fetchAll();
     <!-- Баннер -->
     <section class="hero-banner confectionery-banner">
         <div class="hero-content">
-            <h1>Авторские торты и сладости</h1>
-            <p>Создаём сладкие шедевры с любовью и вниманием к деталям</p>
+            <h1><?= t('confectionery_hero_title') ?></h1>
+            <p><?= t('confectionery_hero_description') ?></p>
             <div class="hero-buttons">
-                <a href="catalog.php" class="btn btn-primary">Смотреть каталог</a>
-                <a href="constructor.php" class="btn btn-secondary">Создать свой торт</a>
+                <a href="catalog.php" class="btn btn-primary"><?= t('view_catalog') ?></a>
+                <a href="constructor.php" class="btn btn-secondary"><?= t('create_your_cake') ?></a>
             </div>
         </div>
     </section>
 
     <!-- Категории -->
     <section class="container">
-        <h2 class="section-title">Наши категории</h2>
+        <h2 class="section-title"><?= t('our_categories') ?></h2>
         <div class="categories-grid">
             <?php foreach ($categories as $category): ?>
                 <a href="catalog.php?category=<?= $category['slug'] ?>" class="category-card">
@@ -75,7 +78,7 @@ $featured_products = $stmt->fetchAll();
     <!-- Избранные товары -->
     <?php if (!empty($featured_products)): ?>
     <section class="container">
-        <h2 class="section-title">Популярные товары</h2>
+        <h2 class="section-title"><?= t('featured_products') ?></h2>
         <div class="products-grid">
             <?php foreach ($featured_products as $product): ?>
                 <div class="product-card">
@@ -90,7 +93,7 @@ $featured_products = $stmt->fetchAll();
                         <p class="product-description"><?= escape(mb_substr($product['description'], 0, 100)) ?>...</p>
                         <div class="product-footer">
                             <span class="product-price"><?= formatPrice($product['price']) ?></span>
-                            <a href="product.php?slug=<?= $product['slug'] ?>" class="btn btn-primary">Подробнее</a>
+                            <a href="product.php?slug=<?= $product['slug'] ?>" class="btn btn-primary"><?= t('more') ?></a>
                         </div>
                     </div>
                 </div>
@@ -110,27 +113,27 @@ $featured_products = $stmt->fetchAll();
 
     <!-- Преимущества -->
     <section class="container">
-        <h2 class="section-title">Почему выбирают нас</h2>
+        <h2 class="section-title"><?= t('why_choose_us') ?></h2>
         <div class="features-grid">
             <div class="feature-card">
                 <div class="feature-icon">✨</div>
-                <h3>Качественные продукты</h3>
-                <p>Используем только свежие и натуральные ингредиенты</p>
+                <h3><?= t('quality_products') ?></h3>
+                <p><?= t('quality_products_desc') ?></p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">🎨</div>
-                <h3>Индивидуальный дизайн</h3>
-                <p>Создадим торт по вашему эскизу или фотографии</p>
+                <h3><?= t('individual_design') ?></h3>
+                <p><?= t('individual_design_desc') ?></p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">🚚</div>
-                <h3>Доставка в срок</h3>
-                <p>Привезём свежий торт точно в назначенное время</p>
+                <h3><?= t('delivery_on_time') ?></h3>
+                <p><?= t('delivery_on_time_desc') ?></p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">💬</div>
-                <h3>Консультации</h3>
-                <p>Поможем выбрать идеальный вариант для вашего праздника</p>
+                <h3><?= t('consultations') ?></h3>
+                <p><?= t('consultations_desc') ?></p>
             </div>
         </div>
     </section>
@@ -138,11 +141,11 @@ $featured_products = $stmt->fetchAll();
     <!-- CTA секция -->
     <section class="cta-section">
         <div class="container">
-            <h2>Хотите создать уникальный торт?</h2>
-            <p>Воспользуйтесь нашим конструктором или свяжитесь с кондитером</p>
+            <h2><?= t('want_unique_cake') ?></h2>
+            <p><?= t('use_constructor_or_chat') ?></p>
             <div class="cta-buttons">
-                <a href="constructor.php" class="btn btn-primary">Конструктор тортов</a>
-                <a href="chat.php" class="btn btn-secondary">Чат с кондитером</a>
+                <a href="constructor.php" class="btn btn-primary"><?= t('cake_constructor') ?></a>
+                <a href="chat.php" class="btn btn-secondary"><?= t('chat_with_confectioner') ?></a>
             </div>
         </div>
     </section>
@@ -152,20 +155,20 @@ $featured_products = $stmt->fetchAll();
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3>Контакты</h3>
-                    <p>Телефон: <?= escape(getSetting('site_phone')) ?></p>
-                    <p>Email: <?= escape(getSetting('site_email')) ?></p>
+                    <h3><?= t('contacts') ?></h3>
+                    <p><?= t('phone') ?>: <?= escape(getSetting('site_phone')) ?></p>
+                    <p><?= t('email') ?>: <?= escape(getSetting('site_email')) ?></p>
                 </div>
                 <div class="footer-section">
-                    <h3>Навигация</h3>
+                    <h3><?= t('navigation') ?></h3>
                     <ul>
-                        <li><a href="catalog.php">Каталог</a></li>
-                        <li><a href="constructor.php">Конструктор</a></li>
-                        <li><a href="chat.php">Чат</a></li>
+                        <li><a href="catalog.php"><?= t('catalog') ?></a></li>
+                        <li><a href="constructor.php"><?= t('cake_constructor') ?></a></li>
+                        <li><a href="chat.php"><?= t('chat') ?></a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
-                    <h3>Мы в соцсетях</h3>
+                    <h3><?= t('social_networks') ?></h3>
                     <div class="social-links">
                         <?php if (getSetting('vk_link')): ?>
                             <a href="<?= escape(getSetting('vk_link')) ?>" target="_blank">VK</a>
@@ -180,7 +183,7 @@ $featured_products = $stmt->fetchAll();
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 Кондитерка. Все права защищены.</p>
+                <p>&copy; 2025 <?= t('confectionery') ?>. <?= t('all_rights_reserved') ?>.</p>
             </div>
         </div>
     </footer>
