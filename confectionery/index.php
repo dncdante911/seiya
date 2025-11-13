@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/functions.php';
+require_once __DIR__ . '/../config/language.php';
 
 // Получаем категории
 $db = getDB();
@@ -97,6 +98,15 @@ $featured_products = $stmt->fetchAll();
         </div>
     </section>
     <?php endif; ?>
+
+    <!-- Виджет новостей -->
+    <div class="container">
+        <?php
+        $section = 'confectionery';
+        $limit = 3;
+        include __DIR__ . '/../includes/news-widget.php';
+        ?>
+    </div>
 
     <!-- Преимущества -->
     <section class="container">

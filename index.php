@@ -1,25 +1,22 @@
 <?php
-require_once __DIR__ . '/config/lang.php';
+require_once __DIR__ . '/config/language.php';
 ?>
 <!DOCTYPE html>
-<html lang="<?= getCurrentLang() ?>">
+<html lang="<?= getCurrentLanguage() ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= t('site_name') ?></title>
+    <title><?= t('main_title') ?></title>
     <link rel="stylesheet" href="assets/css/main.css">
 </head>
 <body>
     <div class="landing-page">
         <header class="landing-header fade-in">
             <!-- Переключатель языков -->
-            <div class="language-switcher" style="position: absolute; top: 20px; right: 20px; z-index: 100;">
-                <a href="?lang=uk" class="lang-btn <?= getCurrentLang() === 'uk' ? 'active' : '' ?>">🇺🇦 UA</a>
-                <a href="?lang=ru" class="lang-btn <?= getCurrentLang() === 'ru' ? 'active' : '' ?>">🇷🇺 RU</a>
-            </div>
+            <?php include __DIR__ . '/includes/language-switcher.php'; ?>
 
-            <h1>🎂🔥 <?= t('site_name') ?></h1>
-            <p><?= t('choose_section') ?></p>
+            <h1>🎂🔥 Seiya</h1>
+            <p><?= t('main_subtitle') ?></p>
         </header>
 
         <div class="sections-wrapper">
@@ -32,9 +29,9 @@ require_once __DIR__ . '/config/lang.php';
 
                     <div class="section-icon">🎂</div>
                     <h2><?= t('confectionery') ?></h2>
-                    <p><?= t('confectionery_desc') ?></p>
+                    <p><?= t('confectionery_description') ?></p>
                     <div class="section-button">
-                        <span><?= t('confectionery_btn') ?></span>
+                        <span><?= t('more') ?> →</span>
                     </div>
                 </div>
             </a>
@@ -48,9 +45,9 @@ require_once __DIR__ . '/config/lang.php';
 
                     <div class="section-icon">🔥</div>
                     <h2><?= t('fireshow') ?></h2>
-                    <p><?= t('fireshow_desc') ?></p>
+                    <p><?= t('fireshow_description') ?></p>
                     <div class="section-button">
-                        <span><?= t('fireshow_btn') ?></span>
+                        <span><?= t('more') ?> →</span>
                     </div>
                 </div>
             </a>

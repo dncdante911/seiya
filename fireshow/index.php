@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/functions.php';
+require_once __DIR__ . '/../config/language.php';
 
 $db = getDB();
 
@@ -109,6 +110,15 @@ $portfolio = $stmt->fetchAll();
         </div>
     </section>
     <?php endif; ?>
+
+    <!-- Виджет новостей -->
+    <div class="container fireshow-section">
+        <?php
+        $section = 'fireshow';
+        $limit = 3;
+        include __DIR__ . '/../includes/news-widget.php';
+        ?>
+    </div>
 
     <section class="container">
         <h2 class="section-title">Почему выбирают нас</h2>
