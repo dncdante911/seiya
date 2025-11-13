@@ -15,21 +15,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
 
     if ($username && $password) {
-        $db = getDB();
-        $stmt = $db->prepare("SELECT * FROM users WHERE username = ?");
-        $stmt->execute([$username]);
-        $user = $stmt->fetch();
+        try {
+            $db = getDB();
+            $stmt = $db->prepare("SELECT * FROM users WHERE username = ?");
+            $stmt->execute([$username]);
+            $user = $stmt->fetch();
 
-        if ($user && password_verify($password, $user['password'])) {
-            $_SESSION['admin_id'] = $user['id'];
-            $_SESSION['admin_username'] = $user['username'];
-            $_SESSION['admin_role'] = $user['role'];
-            redirect('index.php');
-        } else {
-            $error = 'Неверный логин или пароль';
+            if ($user && password_verify($password, $user['password'])) {
+                $_SESSION['admin_id'] = $user['id'];
+                $_SESSION['admin_username'] = $user['username'];
+                $_SESSION['admin_role'] = $user['role'];
+                redirect('index.php');
+            } else {
+                $error = 'Невірний логін або пароль';
+            }
+        } catch (Exception $e) {
+            $error = 'Помилка підключення до БД. <a href="create_admin.php">Перевірте налаштування</a>';
         }
     } else {
-        $error = 'Заполните все поля';
+        $error = 'Заповніть всі поля';
     }
 }
 ?>

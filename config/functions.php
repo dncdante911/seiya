@@ -162,7 +162,9 @@ function updateSetting($key, $value) {
 
 // Проверка авторизации админа
 function isAdminLoggedIn() {
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
     return isset($_SESSION['admin_id']) && isset($_SESSION['admin_username']);
 }
 
