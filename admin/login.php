@@ -17,20 +17,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($username && $password) {
         try {
             $db = getDB();
-            $stmt = $db->prepare("SELECT * FROM users WHERE username = ?");
+            $stmt = $db->prepare("SELECT * FROM users WHERE username = ? AND role = 'admin'");
             $stmt->execute([$username]);
             $user = $stmt->fetch();
 
-            if ($user && password_verify($password, $user['password'])) {
-                $_SESSION['admin_id'] = $user['id'];
-                $_SESSION['admin_username'] = $user['username'];
-                $_SESSION['admin_role'] = $user['role'];
-                redirect('index.php');
+            if ($user) {
+                if (password_verify($password, $user['password'])) {
+                    $_SESSION['admin_id'] = $user['id'];
+                    $_SESSION['admin_username'] = $user['username'];
+                    $_SESSION['admin_role'] = $user['role'];
+                    redirect('index.php');
+                } else {
+                    $error = 'Невірний пароль. <a href="create_admin.php" style="color: #fff; text-decoration: underline;">Створити нового адміна</a>';
+                }
             } else {
-                $error = 'Невірний логін або пароль';
+                $error = 'Користувача не знайдено. <a href="create_admin.php" style="color: #fff; text-decoration: underline;">Створити адміна</a>';
             }
         } catch (Exception $e) {
-            $error = 'Помилка підключення до БД. <a href="create_admin.php">Перевірте налаштування</a>';
+            $error = 'Помилка підключення до БД: ' . $e->getMessage() . '<br><a href="create_admin.php" style="color: #fff; text-decoration: underline;">Перевірте налаштування</a>';
         }
     } else {
         $error = 'Заповніть всі поля';

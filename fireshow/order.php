@@ -19,7 +19,12 @@ $programs = $stmt->fetchAll();
     <nav class="navbar">
         <div class="navbar-container">
             <a href="../" class="navbar-logo">🔥 Фаершоу</a>
-            <ul class="navbar-menu">
+            <div class="navbar-toggle" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="navbar-menu" id="navbarMenu">
                 <li><a href="index.php">Главная</a></li>
                 <li><a href="programs.php">Программы</a></li>
                 <li><a href="portfolio.php">Портфолио</a></li>
@@ -132,6 +137,23 @@ $programs = $stmt->fetchAll();
     </footer>
 
     <script>
+        // Mobile menu toggle
+        function toggleMenu() {
+            const menu = document.getElementById('navbarMenu');
+            const toggle = document.querySelector('.navbar-toggle');
+            menu.classList.toggle('active');
+            toggle.classList.toggle('active');
+        }
+
+        // Закрыть меню при клике на пункт
+        document.querySelectorAll('.navbar-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('navbarMenu').classList.remove('active');
+                document.querySelector('.navbar-toggle').classList.remove('active');
+            });
+        });
+
+        // Order form logic
         let selectedProgram = null;
 
         function selectProgram(element) {
