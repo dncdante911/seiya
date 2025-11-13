@@ -1,0 +1,42 @@
+# Игнорируемые файлы и директории
+
+# Конфигурация (содержит чувствительные данные)
+config/database.php
+
+# Загруженные файлы
+uploads/
+uploads/*
+!uploads/.gitkeep
+
+# PHP
+*.log
+*.cache
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Временные файлы
+tmp/
+temp/
+cache/
+
+# Backup файлы
+*.bak
+*.backup
+*.sql.gz
+
+# Node modules (если будут использоваться)
+node_modules/
+package-lock.json
+
+# Composer (если будет использоваться)
+vendor/
+composer.lock
