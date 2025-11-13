@@ -190,4 +190,168 @@ function closeModal() {
 // Инициализация
 document.addEventListener('DOMContentLoaded', () => {
     FireshowOrder.init();
+    initFireshowAnimations();
 });
+
+/**
+ * ==============================================
+ * FIRESHOW ANIMATIONS - Огненные и звездные анимации
+ * ==============================================
+ */
+
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+
+/**
+ * Создание падающих звезд
+ */
+function createShootingStars() {
+    if (isMobile) return;
+
+    setInterval(() => {
+        const star = document.createElement('div');
+        star.className = 'shooting-star';
+        star.style.cssText = `
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background: white;
+            box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            top: ${Math.random() * 50}%;
+            left: ${Math.random() * 100}%;
+            z-index: 0;
+            pointer-events: none;
+        `;
+
+        document.body.appendChild(star);
+
+        // Анимация
+        star.animate([
+            { transform: 'translate(0, 0)', opacity: 1 },
+            { transform: 'translate(-300px, 300px)', opacity: 0 }
+        ], {
+            duration: 3000,
+            easing: 'linear'
+        }).onfinish = () => star.remove();
+    }, 5000);
+}
+
+/**
+ * Создание огненных частиц
+ */
+function createFireParticles() {
+    if (isMobile) return;
+
+    const banner = document.querySelector('.fireshow-banner');
+    if (!banner) return;
+
+    setInterval(() => {
+        const particle = document.createElement('div');
+        const startX = Math.random() * 100;
+        const size = 2 + Math.random() * 4;
+
+        particle.style.cssText = `
+            position: absolute;
+            width: ${size}px;
+            height: ${size}px;
+            background: linear-gradient(135deg, #ff4500, #ff6347);
+            border-radius: 50%;
+            left: ${startX}%;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 1;
+            box-shadow: 0 0 10px rgba(255, 69, 0, 0.8);
+        `;
+
+        banner.appendChild(particle);
+
+        // Анимация вверх
+        particle.animate([
+            { transform: 'translateY(0) scale(1)', opacity: 1 },
+            { transform: `translateY(-${200 + Math.random() * 200}px) translateX(${-30 + Math.random() * 60}px) scale(0.3)`, opacity: 0 }
+        ], {
+            duration: 2000 + Math.random() * 2000,
+            easing: 'ease-out'
+        }).onfinish = () => particle.remove();
+    }, 500);
+}
+
+/**
+ * Эффект искр при клике
+ */
+function initSparkEffect() {
+    const cards = document.querySelectorAll('.portfolio-card, .program-card, .feature-card');
+
+    cards.forEach(card => {
+        card.addEventListener('click', function(e) {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX;
+            const y = e.clientY;
+
+            // Создаем 8 искр
+            for (let i = 0; i < 8; i++) {
+                const spark = document.createElement('div');
+                const angle = (360 / 8) * i;
+                const distance = 30 + Math.random() * 30;
+
+                spark.style.cssText = `
+                    position: fixed;
+                    width: 4px;
+                    height: 4px;
+                    background: #ff6347;
+                    border-radius: 50%;
+                    left: ${x}px;
+                    top: ${y}px;
+                    pointer-events: none;
+                    z-index: 9999;
+                    box-shadow: 0 0 5px rgba(255, 69, 0, 0.8);
+                `;
+
+                document.body.appendChild(spark);
+
+                const rad = angle * Math.PI / 180;
+                const endX = x + Math.cos(rad) * distance;
+                const endY = y + Math.sin(rad) * distance;
+
+                spark.animate([
+                    { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                    { transform: `translate(${endX - x}px, ${endY - y}px) scale(0)`, opacity: 0 }
+                ], {
+                    duration: 500,
+                    easing: 'ease-out'
+                }).onfinish = () => spark.remove();
+            }
+        });
+    });
+}
+
+/**
+ * Пульсация огненных кнопок
+ */
+function initFireButtonEffects() {
+    const fireButtons = document.querySelectorAll('.btn-primary');
+
+    fireButtons.forEach(btn => {
+        if (!isMobile) {
+            btn.addEventListener('mouseenter', function() {
+                this.style.boxShadow = '0 0 30px rgba(255, 69, 0, 0.8), 0 0 60px rgba(255, 140, 0, 0.4)';
+            });
+
+            btn.addEventListener('mouseleave', function() {
+                this.style.boxShadow = '';
+            });
+        }
+    });
+}
+
+/**
+ * Инициализация всех анимаций
+ */
+function initFireshowAnimations() {
+    setTimeout(() => {
+        createShootingStars();
+        createFireParticles();
+        initSparkEffect();
+        initFireButtonEffects();
+    }, 500);
+}
