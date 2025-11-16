@@ -377,14 +377,16 @@ $portfolio = $stmt->fetchAll();
                                      alt="<?= escape($item['title']) ?>"
                                      onclick="openImageModal('../<?= escape($item['media_path']) ?>')">
                             <?php else: ?>
-                                <div onclick="openVideoModal('../<?= escape($item['media_path']) ?>')">
+                                <div onclick="openVideoModal('../<?= escape($item['media_path']) ?>')" style="cursor: pointer;">
                                     <?php if ($item['thumbnail']): ?>
                                         <img src="../<?= escape($item['thumbnail']) ?>"
-                                             alt="<?= escape($item['title']) ?>">
+                                             alt="<?= escape($item['title']) ?>"
+                                             style="width: 100%; height: 100%; object-fit: cover;">
                                     <?php else: ?>
-                                        <video preload="metadata">
-                                            <source src="../<?= escape($item['media_path']) ?>#t=0.5" type="video/mp4">
-                                        </video>
+                                        <!-- Placeholder для видео без превью -->
+                                        <div style="width: 100%; height: 250px; background: linear-gradient(135deg, #1a1a1a, #2d2d2d); display: flex; align-items: center; justify-content: center; font-size: 4rem; color: #ff6b00;">
+                                            🎬
+                                        </div>
                                     <?php endif; ?>
                                     <div class="video-overlay">
                                         <div class="play-button">▶</div>
@@ -569,8 +571,12 @@ $portfolio = $stmt->fetchAll();
 
             // Останавливаем и сбрасываем видео
             if (videoPlayer) {
-                videoPlayer.pause();
-                videoPlayer.currentTime(0);
+                try {
+                    videoPlayer.pause();
+                    videoPlayer.currentTime(0);
+                } catch (e) {
+                    console.log('Ошибка при закрытии плеера:', e);
+                }
             }
 
             modal.classList.remove('active');
