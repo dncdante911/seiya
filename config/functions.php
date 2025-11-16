@@ -160,33 +160,88 @@ function uploadVideo($file, $directory = 'uploads/videos/') {
         mkdir($directory, 0755, true);
     }
 
-    // Сохраняем временный файл
-    $tempFilename = uniqid() . '_temp_' . time() . '.' . $fileExtension;
-    $tempFilepath = $directory . $tempFilename;
+    // Сохраняем файл сразу с финальным именем (избегаем лишних операций)
+    $finalFilename = uniqid() . '_' . time() . '.' . $fileExtension;
+    $finalFilepath = $directory . $finalFilename;
 
-    if (!move_uploaded_file($file['tmp_name'], $tempFilepath)) {
+    if (!move_uploaded_file($file['tmp_name'], $finalFilepath)) {
         return ['success' => false, 'error' => 'Не удалось сохранить файл'];
     }
 
-    // Проверяем наличие FFmpeg для конвертации
-    $ffmpegPath = exec('which ffmpeg');
+    // Проверяем, нужна ли конвертация
     $needsConversion = in_array($fileExtension, ['mkv', 'avi', 'mov', 'wmv', 'flv', 'mpeg', 'mpg', '3gp']);
 
-    if ($ffmpegPath && $needsConversion) {
+    // ВАЖНО: FFmpeg отключен по умолчанию, чтобы избежать зависаний
+    // Раскомментируйте код ниже после установки FFmpeg на сервере
+    $ffmpegEnabled = false; // Установите true после установки FFmpeg
+
+    if (!$ffmpegEnabled || !$needsConversion) {
+        // FFmpeg отключен или конвертация не нужна
+        $message = $needsConversion && !$ffmpegEnabled ?
+            'FFmpeg отключен. Видео сохранено в оригинальном формате. См. FFMPEG_INSTALL.md для установки.' : null;
+
+        return [
+            'success' => true,
+            'filepath' => $finalFilepath,
+            'filename' => $finalFilename,
+            'converted' => false,
+            'warning' => $message
+        ];
+    }
+
+    // === БЛОК КОНВЕРТАЦИИ FFMPEG (активируется при $ffmpegEnabled = true) ===
+
+    // Быстрая проверка FFmpeg с кэшированием
+    $ffmpegPath = null;
+    $cacheFile = sys_get_temp_dir() . '/ffmpeg_path.cache';
+
+    if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < 3600) {
+        // Используем кэшированный путь (свежий меньше 1 часа)
+        $cached = file_get_contents($cacheFile);
+        if ($cached && file_exists($cached)) {
+            $ffmpegPath = $cached;
+        }
+    } else {
+        // Проверяем FFmpeg с коротким таймаутом
+        $possiblePaths = ['/usr/bin/ffmpeg', '/usr/local/bin/ffmpeg', '/opt/bin/ffmpeg'];
+        foreach ($possiblePaths as $path) {
+            if (file_exists($path) && is_executable($path)) {
+                $ffmpegPath = $path;
+                break;
+            }
+        }
+
+        // Если не нашли в стандартных путях, пробуем which
+        if (!$ffmpegPath) {
+            $output = [];
+            $returnCode = 0;
+            @exec('which ffmpeg 2>/dev/null', $output, $returnCode);
+            if ($returnCode === 0 && !empty($output[0]) && file_exists($output[0])) {
+                $ffmpegPath = $output[0];
+            }
+        }
+
+        // Сохраняем в кэш
+        if ($ffmpegPath) {
+            @file_put_contents($cacheFile, $ffmpegPath);
+        }
+    }
+
+    if ($ffmpegPath) {
         // FFmpeg доступен - конвертируем в MP4 H.264
         $outputFilename = uniqid() . '_' . time() . '.mp4';
         $outputFilepath = $directory . $outputFilename;
 
         // FFmpeg команда для конвертации в MP4 с H.264 кодеком
-        $command = escapeshellcmd($ffmpegPath) . ' -i ' . escapeshellarg($tempFilepath) .
+        $command = escapeshellcmd($ffmpegPath) . ' -i ' . escapeshellarg($finalFilepath) .
                    ' -c:v libx264 -preset medium -crf 23 -c:a aac -b:a 128k -movflags +faststart -y ' .
                    escapeshellarg($outputFilepath) . ' 2>&1';
 
         exec($command, $output, $returnCode);
 
         if ($returnCode === 0 && file_exists($outputFilepath)) {
-            // Конвертация успешна - удаляем временный файл
-            unlink($tempFilepath);
+            // Конвертация успешна - удаляем оригинальный файл
+            @unlink($finalFilepath);
             return [
                 'success' => true,
                 'filepath' => $outputFilepath,
@@ -196,10 +251,6 @@ function uploadVideo($file, $directory = 'uploads/videos/') {
             ];
         } else {
             // Конвертация не удалась - используем оригинальный файл
-            $finalFilename = uniqid() . '_' . time() . '.' . $fileExtension;
-            $finalFilepath = $directory . $finalFilename;
-            rename($tempFilepath, $finalFilepath);
-
             return [
                 'success' => true,
                 'filepath' => $finalFilepath,
@@ -209,20 +260,13 @@ function uploadVideo($file, $directory = 'uploads/videos/') {
             ];
         }
     } else {
-        // FFmpeg недоступен или формат не требует конвертации
-        $finalFilename = uniqid() . '_' . time() . '.' . $fileExtension;
-        $finalFilepath = $directory . $finalFilename;
-        rename($tempFilepath, $finalFilepath);
-
-        $message = !$ffmpegPath && $needsConversion ?
-            'FFmpeg не установлен. Рекомендуется установить для лучшей совместимости с браузерами.' : null;
-
+        // FFmpeg не найден
         return [
             'success' => true,
             'filepath' => $finalFilepath,
             'filename' => $finalFilename,
             'converted' => false,
-            'warning' => $message
+            'warning' => 'FFmpeg не найден на сервере. Видео сохранено в оригинальном формате.'
         ];
     }
 }
