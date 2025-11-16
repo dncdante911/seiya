@@ -423,8 +423,7 @@ $portfolio = $stmt->fetchAll();
                     id="modalVideo"
                     class="video-js vjs-big-play-centered vjs-16-9"
                     controls
-                    preload="auto"
-                    data-setup='{"fluid": true, "aspectRatio": "16:9"}'>
+                    preload="auto">
                     <source src="" type="video/mp4">
                     <p class="vjs-no-js">
                         Для просмотра видео включите JavaScript или используйте браузер с поддержкой HTML5.
