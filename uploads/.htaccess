@@ -4,16 +4,10 @@
     Deny from all
 </FilesMatch>
 
-# Разрешаем только изображения и видео
-<FilesMatch "\.(jpg|jpeg|png|gif|webp|mp4|webm|ogg)$">
+# Разрешаем изображения и видео (все форматы)
+<FilesMatch "\.(jpg|jpeg|png|gif|webp|svg|bmp|mp4|webm|ogg|ogv|mkv|avi|mov|wmv|flv|m4v|mpeg|mpg|3gp)$">
     Order Allow,Deny
     Allow from all
-</FilesMatch>
-
-# Запрещаем все остальное
-<FilesMatch "^.*$">
-    Order Allow,Deny
-    Deny from all
 </FilesMatch>
 
 php_flag engine off
