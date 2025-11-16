@@ -267,8 +267,8 @@ $featured_programs = count(array_filter($programs, fn($p) => $p['featured'] == 1
 
                         <div class="form-group">
                             <label>Видео программы</label>
-                            <input type="file" name="video" class="form-control" accept="video/*">
-                            <small>Допустимые форматы: MP4, WebM, OGG. Макс. размер: 50MB</small>
+                            <input type="file" name="video" class="form-control" accept=".mp4,.mov,.avi,.wmv,.flv,.webm,.ogg,.ogv,.mkv,.3gp,.m4v,.mpeg,.mpg,video/*">
+                            <small>Допустимые форматы: MP4, MKV, AVI, MOV, WMV, FLV, WebM, OGG и другие. Макс. размер: 2GB</small>
                         </div>
 
                         <div class="form-group">
@@ -414,7 +414,8 @@ $featured_programs = count(array_filter($programs, fn($p) => $p['featured'] == 1
 
                 <div class="form-group">
                     <label>Заменить видео</label>
-                    <input type="file" name="video" class="form-control" accept="video/*">
+                    <input type="file" name="video" class="form-control" accept=".mp4,.mov,.avi,.wmv,.flv,.webm,.ogg,.ogv,.mkv,.3gp,.m4v,.mpeg,.mpg,video/*">
+                    <small>Допустимые форматы: MP4, MKV, AVI, MOV, WMV, FLV, WebM, OGG и другие. Макс. размер: 2GB</small>
                 </div>
 
                 <div class="form-group">

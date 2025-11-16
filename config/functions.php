@@ -99,36 +99,64 @@ function uploadImage($file, $directory = 'uploads/') {
 
 // Загрузка видео
 function uploadVideo($file, $directory = 'uploads/videos/') {
-    $allowedTypes = ['video/mp4', 'video/webm', 'video/ogg'];
-    $maxSize = 50 * 1024 * 1024; // 50MB
+    // Разрешены все популярные видео форматы
+    $allowedTypes = [
+        'video/mp4',
+        'video/mpeg',
+        'video/quicktime',      // MOV
+        'video/x-msvideo',      // AVI
+        'video/x-ms-wmv',       // WMV
+        'video/x-flv',          // FLV
+        'video/webm',
+        'video/ogg',
+        'video/x-matroska',     // MKV
+        'video/3gpp',           // 3GP
+        'video/x-m4v',          // M4V
+        'application/octet-stream' // Для некоторых форматов которые не распознаются
+    ];
+    $maxSize = 2048 * 1024 * 1024; // 2GB
 
     if (!isset($file['error']) || is_array($file['error'])) {
         return ['success' => false, 'error' => 'Неверный параметр'];
     }
 
     if ($file['error'] !== UPLOAD_ERR_OK) {
-        return ['success' => false, 'error' => 'Ошибка загрузки файла'];
+        $errorMessages = [
+            UPLOAD_ERR_INI_SIZE => 'Файл превышает максимальный размер, разрешенный в php.ini',
+            UPLOAD_ERR_FORM_SIZE => 'Файл превышает максимальный размер',
+            UPLOAD_ERR_PARTIAL => 'Файл был загружен только частично',
+            UPLOAD_ERR_NO_FILE => 'Файл не был загружен',
+            UPLOAD_ERR_NO_TMP_DIR => 'Отсутствует временная папка',
+            UPLOAD_ERR_CANT_WRITE => 'Не удалось записать файл на диск',
+            UPLOAD_ERR_EXTENSION => 'Загрузка файла остановлена расширением'
+        ];
+        return ['success' => false, 'error' => $errorMessages[$file['error']] ?? 'Ошибка загрузки файла'];
     }
 
     if ($file['size'] > $maxSize) {
-        return ['success' => false, 'error' => 'Файл слишком большой (макс. 50MB)'];
+        return ['success' => false, 'error' => 'Файл слишком большой (макс. 2GB)'];
+    }
+
+    // Проверяем расширение файла
+    $originalName = $file['name'];
+    $pathInfo = pathinfo($originalName);
+    $fileExtension = strtolower($pathInfo['extension'] ?? '');
+
+    $allowedExtensions = ['mp4', 'mov', 'avi', 'wmv', 'flv', 'webm', 'ogg', 'ogv', 'mkv', '3gp', 'm4v', 'mpeg', 'mpg'];
+
+    if (!in_array($fileExtension, $allowedExtensions)) {
+        return ['success' => false, 'error' => 'Недопустимый формат видео. Разрешены: ' . implode(', ', $allowedExtensions)];
     }
 
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     $mimeType = $finfo->file($file['tmp_name']);
 
-    if (!in_array($mimeType, $allowedTypes)) {
+    // Проверяем MIME type (более мягкая проверка из-за разнообразия форматов)
+    if (!in_array($mimeType, $allowedTypes) && !str_starts_with($mimeType, 'video/')) {
         return ['success' => false, 'error' => 'Недопустимый тип файла'];
     }
 
-    $extension = match($mimeType) {
-        'video/mp4' => 'mp4',
-        'video/webm' => 'webm',
-        'video/ogg' => 'ogg',
-        default => 'mp4'
-    };
-
-    $filename = uniqid() . '_' . time() . '.' . $extension;
+    $filename = uniqid() . '_' . time() . '.' . $fileExtension;
     $filepath = $directory . $filename;
 
     if (!is_dir($directory)) {

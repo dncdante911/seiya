@@ -473,9 +473,9 @@ $videos = count(array_filter($portfolio, fn($p) => $p['media_type'] === 'video')
             const thumbnailGroup = document.getElementById(`${prefix}_thumbnail_group`);
 
             if (mediaType === 'video') {
-                mediaInput.accept = 'video/*';
+                mediaInput.accept = '.mp4,.mov,.avi,.wmv,.flv,.webm,.ogg,.ogv,.mkv,.3gp,.m4v,.mpeg,.mpg,video/*';
                 mediaLabel.textContent = 'Файл видео *';
-                mediaHint.textContent = 'Допустимые форматы: MP4, WebM, OGG. Макс. размер: 50MB';
+                mediaHint.textContent = 'Допустимые форматы: MP4, MKV, AVI, MOV, WMV, FLV, WebM, OGG и другие. Макс. размер: 2GB';
                 thumbnailGroup.style.display = 'block';
             } else {
                 mediaInput.accept = 'image/*';
