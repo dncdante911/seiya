@@ -15,6 +15,11 @@ $portfolio = $stmt->fetchAll();
     <title><?= t('portfolio') ?> - <?= t('fireshow') ?></title>
     <link rel="stylesheet" href="../assets/css/main.css">
     <link rel="stylesheet" href="../assets/css/fireshow.css">
+
+    <!-- Video.js -->
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+
     <style>
         .portfolio-header {
             text-align: center;
@@ -201,7 +206,7 @@ $portfolio = $stmt->fetchAll();
         .video-modal-wrapper {
             position: relative;
             width: 90%;
-            max-width: 1200px;
+            max-width: 1400px;
             animation: zoomIn 0.3s ease;
         }
 
@@ -212,30 +217,69 @@ $portfolio = $stmt->fetchAll();
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
         }
 
-        .video-modal-content video {
+        .video-modal-content video,
+        .video-modal-content .video-js {
             width: 100%;
             height: auto;
             display: block;
             background: #000;
         }
 
-        /* Кастомные контролы для видео */
-        video::-webkit-media-controls-panel {
-            background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.8));
+        /* Video.js кастомизация */
+        .video-js {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
 
-        video::-webkit-media-controls-play-button {
-            background-color: #ff6b00;
+        .video-js .vjs-big-play-button {
+            background: linear-gradient(135deg, #ff6b00, #ff4500);
+            border: none;
             border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            line-height: 80px;
+            font-size: 3rem;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s ease;
         }
 
-        video::-webkit-media-controls-timeline {
-            background-color: rgba(255, 107, 0, 0.3);
+        .video-js:hover .vjs-big-play-button {
+            background: linear-gradient(135deg, #ff8c00, #ff6347);
+            transform: translate(-50%, -50%) scale(1.1);
         }
 
-        video::-webkit-media-controls-current-time-display,
-        video::-webkit-media-controls-time-remaining-display {
-            color: white;
+        .video-js .vjs-control-bar {
+            background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.4));
+            height: 4em;
+        }
+
+        .video-js .vjs-play-progress,
+        .video-js .vjs-volume-level {
+            background-color: #ff6b00;
+        }
+
+        .video-js .vjs-slider {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .video-js .vjs-load-progress {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .video-js .vjs-control:focus:before,
+        .video-js .vjs-control:hover:before,
+        .video-js .vjs-control:focus {
+            text-shadow: 0 0 1em #ff6b00, 0 0 2em #ff6b00;
+        }
+
+        .video-js .vjs-button > .vjs-icon-placeholder:before {
+            font-size: 1.8em;
+            line-height: 2.2;
+        }
+
+        .vjs-modal-dialog .vjs-modal-dialog-content {
+            padding-top: 40px;
         }
 
         @media (max-width: 768px) {
@@ -375,9 +419,16 @@ $portfolio = $stmt->fetchAll();
         <button class="modal-close" onclick="closeVideoModal(); event.stopPropagation()">×</button>
         <div class="video-modal-wrapper" onclick="event.stopPropagation()">
             <div class="video-modal-content">
-                <video id="modalVideo" controls autoplay>
+                <video
+                    id="modalVideo"
+                    class="video-js vjs-big-play-centered vjs-16-9"
+                    controls
+                    preload="auto"
+                    data-setup='{"fluid": true, "aspectRatio": "16:9"}'>
                     <source src="" type="video/mp4">
-                    Ваш браузер не поддерживает воспроизведение видео.
+                    <p class="vjs-no-js">
+                        Для просмотра видео включите JavaScript или используйте браузер с поддержкой HTML5.
+                    </p>
                 </video>
             </div>
         </div>
@@ -449,32 +500,80 @@ $portfolio = $stmt->fetchAll();
             document.body.style.overflow = '';
         }
 
+        // Глобальная переменная для Video.js плеера
+        let videoPlayer = null;
+
+        // Инициализация Video.js
+        document.addEventListener('DOMContentLoaded', function() {
+            videoPlayer = videojs('modalVideo', {
+                controls: true,
+                autoplay: false,
+                preload: 'auto',
+                fluid: true,
+                aspectRatio: '16:9',
+                language: '<?= getCurrentLanguage() ?>',
+                playbackRates: [0.5, 1, 1.5, 2],
+                controlBar: {
+                    children: [
+                        'playToggle',
+                        'volumePanel',
+                        'currentTimeDisplay',
+                        'timeDivider',
+                        'durationDisplay',
+                        'progressControl',
+                        'playbackRateMenuButton',
+                        'pictureInPictureToggle',
+                        'fullscreenToggle'
+                    ]
+                }
+            });
+
+            // Стилизация плеера
+            videoPlayer.addClass('vjs-theme-fantasy');
+        });
+
         // Открыть модальное окно с видео
         function openVideoModal(videoSrc) {
             const modal = document.getElementById('videoModal');
-            const video = document.getElementById('modalVideo');
-            const source = video.querySelector('source');
 
-            source.src = videoSrc;
-            video.load();
+            // Определяем тип видео по расширению
+            const extension = videoSrc.split('.').pop().toLowerCase();
+            let mimeType = 'video/mp4';
+
+            if (extension === 'webm') mimeType = 'video/webm';
+            else if (extension === 'ogg' || extension === 'ogv') mimeType = 'video/ogg';
+            else if (extension === 'mkv') mimeType = 'video/x-matroska';
+            else if (extension === 'avi') mimeType = 'video/x-msvideo';
+            else if (extension === 'mov') mimeType = 'video/quicktime';
+
+            // Устанавливаем источник видео
+            videoPlayer.src({
+                type: mimeType,
+                src: videoSrc
+            });
+
+            // Показываем модальное окно
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
 
-            // Автовоспроизведение с небольшой задержкой
+            // Автовоспроизведение
             setTimeout(() => {
-                video.play().catch(err => {
+                videoPlayer.play().catch(err => {
                     console.log('Автовоспроизведение заблокировано браузером:', err);
                 });
-            }, 100);
+            }, 200);
         }
 
         // Закрыть модальное окно с видео
         function closeVideoModal() {
             const modal = document.getElementById('videoModal');
-            const video = document.getElementById('modalVideo');
 
-            video.pause();
-            video.currentTime = 0;
+            // Останавливаем и сбрасываем видео
+            if (videoPlayer) {
+                videoPlayer.pause();
+                videoPlayer.currentTime(0);
+            }
+
             modal.classList.remove('active');
             document.body.style.overflow = '';
         }
@@ -484,15 +583,6 @@ $portfolio = $stmt->fetchAll();
             if (e.key === 'Escape') {
                 closeImageModal();
                 closeVideoModal();
-            }
-        });
-
-        // Пауза/воспроизведение по клику на видео
-        document.getElementById('modalVideo').addEventListener('click', function() {
-            if (this.paused) {
-                this.play();
-            } else {
-                this.pause();
             }
         });
     </script>

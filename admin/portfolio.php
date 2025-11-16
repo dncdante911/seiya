@@ -41,6 +41,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $upload = uploadVideo($_FILES['media'], '../uploads/fireshow/videos/');
                         if ($upload['success']) {
                             $media_path = str_replace('../', '', $upload['filepath']);
+                            // Показываем предупреждение если видео не было конвертировано
+                            if (isset($upload['warning'])) {
+                                $success .= ' ' . $upload['warning'];
+                            }
+                            if (isset($upload['converted']) && $upload['converted']) {
+                                $success .= ' Видео автоматически конвертировано в MP4 для лучшей совместимости.';
+                            }
                         } else {
                             $error = $upload['error'];
                         }
@@ -105,6 +112,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 unlink('../' . $media_path);
                             }
                             $media_path = str_replace('../', '', $upload['filepath']);
+                            // Показываем предупреждение если видео не было конвертировано
+                            if (isset($upload['warning'])) {
+                                $success .= ' ' . $upload['warning'];
+                            }
+                            if (isset($upload['converted']) && $upload['converted']) {
+                                $success .= ' Видео автоматически конвертировано в MP4 для лучшей совместимости.';
+                            }
                         }
                     }
                 }

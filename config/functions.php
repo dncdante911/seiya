@@ -156,18 +156,75 @@ function uploadVideo($file, $directory = 'uploads/videos/') {
         return ['success' => false, 'error' => 'Недопустимый тип файла'];
     }
 
-    $filename = uniqid() . '_' . time() . '.' . $fileExtension;
-    $filepath = $directory . $filename;
-
     if (!is_dir($directory)) {
         mkdir($directory, 0755, true);
     }
 
-    if (!move_uploaded_file($file['tmp_name'], $filepath)) {
+    // Сохраняем временный файл
+    $tempFilename = uniqid() . '_temp_' . time() . '.' . $fileExtension;
+    $tempFilepath = $directory . $tempFilename;
+
+    if (!move_uploaded_file($file['tmp_name'], $tempFilepath)) {
         return ['success' => false, 'error' => 'Не удалось сохранить файл'];
     }
 
-    return ['success' => true, 'filepath' => $filepath, 'filename' => $filename];
+    // Проверяем наличие FFmpeg для конвертации
+    $ffmpegPath = exec('which ffmpeg');
+    $needsConversion = in_array($fileExtension, ['mkv', 'avi', 'mov', 'wmv', 'flv', 'mpeg', 'mpg', '3gp']);
+
+    if ($ffmpegPath && $needsConversion) {
+        // FFmpeg доступен - конвертируем в MP4 H.264
+        $outputFilename = uniqid() . '_' . time() . '.mp4';
+        $outputFilepath = $directory . $outputFilename;
+
+        // FFmpeg команда для конвертации в MP4 с H.264 кодеком
+        $command = escapeshellcmd($ffmpegPath) . ' -i ' . escapeshellarg($tempFilepath) .
+                   ' -c:v libx264 -preset medium -crf 23 -c:a aac -b:a 128k -movflags +faststart -y ' .
+                   escapeshellarg($outputFilepath) . ' 2>&1';
+
+        exec($command, $output, $returnCode);
+
+        if ($returnCode === 0 && file_exists($outputFilepath)) {
+            // Конвертация успешна - удаляем временный файл
+            unlink($tempFilepath);
+            return [
+                'success' => true,
+                'filepath' => $outputFilepath,
+                'filename' => $outputFilename,
+                'converted' => true,
+                'original_format' => $fileExtension
+            ];
+        } else {
+            // Конвертация не удалась - используем оригинальный файл
+            $finalFilename = uniqid() . '_' . time() . '.' . $fileExtension;
+            $finalFilepath = $directory . $finalFilename;
+            rename($tempFilepath, $finalFilepath);
+
+            return [
+                'success' => true,
+                'filepath' => $finalFilepath,
+                'filename' => $finalFilename,
+                'converted' => false,
+                'warning' => 'Конвертация не удалась, сохранен оригинальный формат'
+            ];
+        }
+    } else {
+        // FFmpeg недоступен или формат не требует конвертации
+        $finalFilename = uniqid() . '_' . time() . '.' . $fileExtension;
+        $finalFilepath = $directory . $finalFilename;
+        rename($tempFilepath, $finalFilepath);
+
+        $message = !$ffmpegPath && $needsConversion ?
+            'FFmpeg не установлен. Рекомендуется установить для лучшей совместимости с браузерами.' : null;
+
+        return [
+            'success' => true,
+            'filepath' => $finalFilepath,
+            'filename' => $finalFilename,
+            'converted' => false,
+            'warning' => $message
+        ];
+    }
 }
 
 // Получение настроек сайта
